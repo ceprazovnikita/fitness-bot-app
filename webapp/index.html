@@ -328,455 +328,240 @@
 </head>
 <body>
 
-<!-- PAGE: DASHBOARD -->
-<div class="page active" id="page-dash">
-  <div class="page-title">СЕГОДНЯ</div>
-  <div class="page-sub" id="dash-date">загрузка...</div>
-
-  <div class="card animate-in">
-    <div class="card-title">Калории</div>
-    <div class="ring-wrap">
-      <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
-        <circle class="ring-track" cx="55" cy="55" r="44"/>
-        <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="44"
-          stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
-        <text class="ring-center" x="55" y="50">
-          <tspan class="ring-num" id="ring-eaten">0</tspan>
-        </text>
-        <text class="ring-center ring-label" x="55" y="68">из <tspan id="ring-target">2000</tspan></text>
-      </svg>
-      <div class="ring-stats">
-        <div class="ring-stat">
-          <div class="ring-stat-label">Белки</div>
-          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-p" style="width:0%;background:#c8f135"></div></div>
-        </div>
-        <div class="ring-stat">
-          <div class="ring-stat-label">Жиры</div>
-          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-f" style="width:0%;background:#f59e0b"></div></div>
-        </div>
-        <div class="ring-stat">
-          <div class="ring-stat-label">Углеводы</div>
-          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-c" style="width:0%;background:#7c3aed"></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="macros animate-in" style="animation-delay:.1s;margin-bottom:12px">
-    <div class="macro"><div class="macro-val" id="m-p" style="color:#c8f135">0г</div><div class="macro-label">Белки</div></div>
-    <div class="macro"><div class="macro-val" id="m-f" style="color:#f59e0b">0г</div><div class="macro-label">Жиры</div></div>
-    <div class="macro"><div class="macro-val" id="m-c" style="color:#7c3aed">0г</div><div class="macro-label">Углеводы</div></div>
-  </div>
-
-  <!-- WATER -->
-  <div class="card animate-in" style="animation-delay:.15s">
-    <div class="card-title">Вода</div>
-    <div class="water-track" id="water-drops"></div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
-      <span id="water-ml">0</span> мл из 2000 мл
-    </div>
-    <button class="water-btn" onclick="addWater()">+ 250 мл</button>
-  </div>
-
-  <!-- MEALS -->
-  <div class="card animate-in" style="animation-delay:.2s">
-    <div class="card-title">Приёмы пищи</div>
-    <div id="meals-list"><div class="empty-state">Пока ничего не записано 🍽</div></div>
-  </div>
-</div>
-
-<!-- PAGE: HISTORY -->
-<div class="page" id="page-history">
-  <div class="page-title">ИСТОРИЯ</div>
-  <div class="page-sub">Последние 7 дней</div>
-  <div id="history-list"><div class="empty-state">История пока пуста</div></div>
-</div>
 
 <!-- PAGE: KNOWLEDGE -->
-<div class="page" id="page-knowledge">
-  <div class="page-title">ЗНАНИЯ</div>
-  <div class="page-sub">Всё о здоровом образе жизни</div>
+<div class="page active" id="page-knowledge">
+  <div class="page-title">FIT SCIENCE</div>
+  <div class="page-sub">Исследования, биохакинг, питание, сон и тренировки</div>
+
   <div class="knowledge-grid">
-    <div class="topic-card" onclick="openTopic('nutrition')">
-      <div class="topic-icon">🥗</div>
-      <div class="topic-name">Питание</div>
-      <div class="topic-desc">Основы правильного рациона и макронутриенты</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('water')">
-      <div class="topic-icon">💧</div>
-      <div class="topic-name">Водно-солевой баланс</div>
-      <div class="topic-desc">Почему вода важна и сколько её пить</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('workout')">
-      <div class="topic-icon">🏋️</div>
-      <div class="topic-name">Тренировки</div>
-      <div class="topic-desc">Как правильно тренироваться для результата</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('sleep')">
-      <div class="topic-icon">😴</div>
-      <div class="topic-name">Сон и восстановление</div>
-      <div class="topic-desc">Роль сна в похудении и наборе мышц</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('calories')">
-      <div class="topic-icon">🔥</div>
-      <div class="topic-name">Дефицит калорий</div>
-      <div class="topic-desc">Как рассчитать и правильно создать дефицит</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('protein')">
+
+    <div class="topic-card">
       <div class="topic-icon">🥩</div>
-      <div class="topic-name">Белок</div>
-      <div class="topic-desc">Зачем нужен белок и где его брать</div>
+      <div class="topic-name">Белок и рост мышц</div>
+      <div class="topic-desc">
+        Исследования показывают, что 1.6–2.2 г белка на кг веса оптимальны для набора мышц.
+        <br><br>
+        • Morton et al. (2018): https://pubmed.ncbi.nlm.nih.gov/28698222/
+        <br>
+        • Schoenfeld (2018): https://pubmed.ncbi.nlm.nih.gov/29497353/
+      </div>
     </div>
+
+    <div class="topic-card">
+      <div class="topic-icon">😴</div>
+      <div class="topic-name">Сон и тестостерон</div>
+      <div class="topic-desc">
+        Недосып снижает тестостерон, ухудшает восстановление и повышает аппетит.
+        <br><br>
+        • Leproult & Van Cauter: https://pubmed.ncbi.nlm.nih.gov/16488899/
+        <br>
+        • Walker Sleep Research: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5449130/
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-icon">🔥</div>
+      <div class="topic-name">Похудение и дефицит</div>
+      <div class="topic-desc">
+        Жир уходит только при дефиците калорий.
+        Безопасный темп — 0.5–1% веса в неделю.
+        <br><br>
+        • Hall et al.: https://pubmed.ncbi.nlm.nih.gov/28193517/
+        <br>
+        • NIH Body Weight Planner:
+        https://www.niddk.nih.gov/bwp
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-icon">🏋️</div>
+      <div class="topic-name">Силовые тренировки</div>
+      <div class="topic-desc">
+        Прогрессивная перегрузка — главный фактор роста мышц.
+        <br><br>
+        • Brad Schoenfeld:
+        https://pubmed.ncbi.nlm.nih.gov/27433992/
+        <br>
+        • ACSM Guidelines:
+        https://www.acsm.org/
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-icon">💧</div>
+      <div class="topic-name">Вода и производительность</div>
+      <div class="topic-desc">
+        Потеря даже 2% жидкости снижает физическую производительность.
+        <br><br>
+        • Sawka et al.:
+        https://pubmed.ncbi.nlm.nih.gov/14693931/
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-icon">🧠</div>
+      <div class="topic-name">Креатин</div>
+      <div class="topic-desc">
+        Креатин — одна из самых изученных спортивных добавок.
+        Улучшает силу, восстановление и когнитивные функции.
+        <br><br>
+        • Kreider et al.:
+        https://pubmed.ncbi.nlm.nih.gov/28615996/
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-icon">🥦</div>
+      <div class="topic-name">Микронутриенты</div>
+      <div class="topic-desc">
+        Дефицит витаминов и минералов влияет на энергию,
+        иммунитет и гормоны.
+        <br><br>
+        • WHO Nutrition:
+        https://www.who.int/health-topics/nutrition
+      </div>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-icon">❤️</div>
+      <div class="topic-name">Кардио и сердце</div>
+      <div class="topic-desc">
+        150 минут кардио в неделю снижают риск сердечных заболеваний.
+        <br><br>
+        • WHO Physical Activity:
+        https://www.who.int/news-room/fact-sheets/detail/physical-activity
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- TOPIC OVERLAYS -->
-<div class="topic-content" id="topic-nutrition">
-  <button class="topic-back" onclick="closeTopic('nutrition')">← Назад</button>
-  <div class="page-title">ПИТАНИЕ</div>
-  <div class="topic-body">
-    <h3>Что такое макронутриенты?</h3>
-    <p>Макронутриенты — это три основных питательных вещества: белки, жиры и углеводы. Каждый выполняет свою роль в организме.</p>
-    <div class="tip-box">⚡ Золотое правило: 30% белки / 30% жиры / 40% углеводы от суточной нормы калорий</div>
-    <h3>Белки (4 ккал/г)</h3>
-    <p>Строительный материал для мышц. Норма: 1.6–2.2 г на кг веса тела. Источники: мясо, рыба, яйца, творог, бобовые.</p>
-    <h3>Жиры (9 ккал/г)</h3>
-    <p>Необходимы для гормонов и усвоения витаминов. Не меньше 0.8 г на кг веса. Источники: авокадо, орехи, оливковое масло, рыба.</p>
-    <h3>Углеводы (4 ккал/г)</h3>
-    <p>Основное топливо для мозга и мышц. Выбирай сложные углеводы: крупы, овощи, цельнозерновой хлеб.</p>
-    <h3>Частота питания</h3>
-    <p>Ешь 3–5 раз в день примерно в одно время. Это помогает контролировать голод и стабилизирует уровень сахара в крови.</p>
-    <div class="tip-box">💡 Не пропускай завтрак — он запускает метаболизм на весь день</div>
+<!-- PAGE: GAME -->
+<div class="page" id="page-game">
+  <div class="page-title">FAT BIRD</div>
+  <div class="page-sub">Каждая колонна делает тебя худее</div>
+
+  <div class="card">
+    <canvas id="gameCanvas" width="360" height="600" style="width:100%;background:#13131a;border-radius:20px"></canvas>
+    <button class="btn-accent" style="margin-top:12px" onclick="startGame()">СТАРТ</button>
   </div>
 </div>
 
-<div class="topic-content" id="topic-water">
-  <button class="topic-back" onclick="closeTopic('water')">← Назад</button>
-  <div class="page-title">ВОДА</div>
-  <div class="topic-body">
-    <h3>Почему вода так важна?</h3>
-    <p>Тело на 60–70% состоит из воды. Даже небольшое обезвоживание (1–2%) снижает физическую и умственную производительность на 10–20%.</p>
-    <h3>Сколько пить?</h3>
-    <p>Базовая норма: 30–35 мл на кг веса тела. При активных тренировках добавь ещё 500–1000 мл. В жару — ещё больше.</p>
-    <div class="tip-box">💧 Начинай день со стакана воды сразу после пробуждения — это запускает обмен веществ</div>
-    <h3>Электролиты</h3>
-    <p>При активных тренировках вместе с потом уходят соли (натрий, калий, магний). Восполняй их через еду или специальные напитки.</p>
-    <h3>Признаки обезвоживания</h3>
-    <ul>
-      <li>Тёмная моча</li>
-      <li>Головная боль</li>
-      <li>Усталость и раздражительность</li>
-      <li>Сухость во рту</li>
-      <li>Снижение концентрации</li>
-    </ul>
-    <div class="tip-box">✅ Цвет мочи — лучший индикатор: светло-жёлтый = норма, тёмный = пей больше</div>
-  </div>
-</div>
-
-<div class="topic-content" id="topic-workout">
-  <button class="topic-back" onclick="closeTopic('workout')">← Назад</button>
-  <div class="page-title">ТРЕНИРОВКИ</div>
-  <div class="topic-body">
-    <h3>Сколько тренироваться?</h3>
-    <p>ВОЗ рекомендует минимум 150 минут умеренной активности в неделю. Для изменения состава тела — 3–5 силовых тренировок в неделю.</p>
-    <h3>Прогрессивная перегрузка</h3>
-    <p>Главный принцип роста мышц: постепенно увеличивай нагрузку. Это может быть больший вес, больше повторений или меньший отдых.</p>
-    <div class="tip-box">🏋️ Увеличивай рабочий вес на 2.5–5 кг когда можешь сделать верхнюю границу повторений с хорошей техникой</div>
-    <h3>Кардио</h3>
-    <p>Не замена силовым, а дополнение. 2–3 кардиосессии по 30–40 минут в неделю улучшают здоровье сердца и ускоряют жиросжигание.</p>
-    <h3>Восстановление</h3>
-    <p>Мышцы растут не во время тренировки, а во время отдыха. Не тренируй одну группу мышц чаще 2 раз в неделю.</p>
-    <h3>Питание вокруг тренировки</h3>
-    <ul>
-      <li>За 1.5–2 часа до: углеводы + немного белка</li>
-      <li>После тренировки: белок 20–40г + углеводы</li>
-    </ul>
-  </div>
-</div>
-
-<div class="topic-content" id="topic-sleep">
-  <button class="topic-back" onclick="closeTopic('sleep')">← Назад</button>
-  <div class="page-title">СОН</div>
-  <div class="topic-body">
-    <h3>Сон и похудение</h3>
-    <p>При недосыпе повышается грелин (гормон голода) и снижается лептин (гормон сытости). Результат — ты ешь на 300–400 ккал больше на следующий день.</p>
-    <div class="tip-box">😴 7–9 часов сна — не роскошь, а необходимость для результата в зале</div>
-    <h3>Гормон роста</h3>
-    <p>80% суточного гормона роста выделяется во сне. Именно он отвечает за восстановление мышц и жиросжигание ночью.</p>
-    <h3>Рекомендации</h3>
-    <ul>
-      <li>Ложись и вставай в одно время</li>
-      <li>Убирай телефон за час до сна</li>
-      <li>Температура в комнате 18–20°C оптимальна</li>
-      <li>Не ешь за 2–3 часа до сна</li>
-      <li>Избегай кофеина после 14:00</li>
-    </ul>
-    <h3>Дневной сон</h3>
-    <p>20–30 минут дневного сна восстанавливают когнитивные функции и физическую производительность. Главное — не дольше, иначе почувствуешь вялость.</p>
-  </div>
-</div>
-
-<div class="topic-content" id="topic-calories">
-  <button class="topic-back" onclick="closeTopic('calories')">← Назад</button>
-  <div class="page-title">ДЕФИЦИТ КАЛОРИЙ</div>
-  <div class="topic-body">
-    <h3>Что такое дефицит?</h3>
-    <p>Дефицит калорий — это когда ты тратишь больше калорий, чем потребляешь. Только так можно сбросить жир.</p>
-    <h3>Какой дефицит создавать?</h3>
-    <p>Безопасный дефицит: 300–500 ккал в день. Это даст потерю ~0.3–0.5 кг жира в неделю без потери мышц.</p>
-    <div class="tip-box">⚠️ Дефицит больше 1000 ккал ведёт к потере мышц, замедлению метаболизма и срывам</div>
-    <h3>Формула TDEE</h3>
-    <p>TDEE (Total Daily Energy Expenditure) — твои суточные траты. Включает базальный метаболизм + физическая активность + термический эффект пищи.</p>
-    <h3>Почему вес стоит?</h3>
-    <ul>
-      <li>Переоценка калорий в еде</li>
-      <li>Задержка воды (особенно при стрессе)</li>
-      <li>Адаптация метаболизма через 4–6 недель</li>
-      <li>Набор мышечной массы параллельно с потерей жира</li>
-    </ul>
-    <div class="tip-box">💡 Делай рефид (1 день с нормой калорий) раз в 1–2 недели — это перезапускает метаболизм</div>
-  </div>
-</div>
-
-<div class="topic-content" id="topic-protein">
-  <button class="topic-back" onclick="closeTopic('protein')">← Назад</button>
-  <div class="page-title">БЕЛОК</div>
-  <div class="topic-body">
-    <h3>Зачем нужен белок?</h3>
-    <p>Белок — строительный материал для мышц, гормонов, ферментов и антител. Он также даёт самое долгое чувство сытости из всех макронутриентов.</p>
-    <h3>Норма потребления</h3>
-    <p>При активных тренировках: 1.6–2.2 г на кг веса тела. При похудении можно до 2.5 г — это защищает мышцы от распада.</p>
-    <div class="tip-box">🥩 Распределяй белок равномерно по приёмам пищи: 20–40г за раз усваивается оптимально</div>
-    <h3>Лучшие источники</h3>
-    <ul>
-      <li>Куриная грудка — 31г/100г</li>
-      <li>Творог 0% — 18г/100г</li>
-      <li>Яйца — 13г/100г</li>
-      <li>Тунец — 25г/100г</li>
-      <li>Греческий йогурт — 10г/100г</li>
-      <li>Чечевица — 9г/100г</li>
-    </ul>
-    <h3>Протеиновые добавки</h3>
-    <p>Сывороточный протеин — удобный способ добрать белок. Не замена еде, а дополнение. 1–2 порции в день вполне достаточно.</p>
-  </div>
-</div>
-
-<!-- PAGE: ASK -->
-<div class="page" id="page-ask">
-  <div class="page-title">ТРЕНЕР</div>
-  <div class="page-sub">Задай вопрос анонимно</div>
-
-  <div class="ask-intro">
-    <div class="ask-intro-icon">🏆</div>
-    <div class="ask-intro-title">Личная консультация</div>
-    <div class="ask-intro-text">Задай любой вопрос о питании, тренировках или здоровье. Тренер ответит тебе лично и анонимно.</div>
-  </div>
-
-  <div class="ask-form">
-    <textarea id="ask-text" placeholder="Напиши свой вопрос здесь..."></textarea>
-    <button class="btn-accent" onclick="sendQuestion()">ОТПРАВИТЬ ВОПРОС</button>
-  </div>
-  <div class="success-msg" id="ask-success">
-    ✅ Вопрос отправлен! Ожидай ответа в боте.
-  </div>
-</div>
 
 <!-- BOTTOM NAV -->
+
 <nav class="nav">
-  <button class="nav-btn active" onclick="showPage('dash', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    Сегодня
-  </button>
-  <button class="nav-btn" onclick="showPage('history', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    История
-  </button>
-  <button class="nav-btn" onclick="showPage('knowledge', this)">
+  <button class="nav-btn active" onclick="showPage('knowledge', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
     Знания
   </button>
-  <button class="nav-btn" onclick="showPage('ask', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Тренер
+
+  <button class="nav-btn" onclick="showPage('game', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2v20"/>
+      <path d="M2 12h20"/>
+    </svg>
+    Игра
   </button>
 </nav>
 
+
+
 <script>
-  const tg = window.Telegram?.WebApp;
-  if (tg) { tg.expand(); tg.setHeaderColor('#0a0a0f'); }
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+}
 
-  const userId = tg?.initDataUnsafe?.user?.id;
-  alert('userId: ' + userId + ' | tg: ' + !!tg);
-  const API = 'https://fitness-bot-app-production.up.railway.app/api';
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-  let state = {
-    calories_today: 0,
-    calories_target: 2000,
-    water_today: 0,
-    meals_today: [],
-    proteins: 0, fats: 0, carbs: 0,
-    history: []
-  };
+let birdY = 250;
+let velocity = 0;
+let gravity = 0.5;
+let pipes = [];
+let score = 0;
+let fat = 60;
+let running = false;
 
-  async function loadData() {
-    if (!userId) return renderAll();
-    try {
-      const res = await fetch(`${API}/get/${userId}`);
-      const data = await res.json();
-      state = {
-        ...state,
-        ...data,
-        proteins: data.meals_today?.reduce((s, m) => s + (m.proteins || 0), 0) || 0,
-        fats: data.meals_today?.reduce((s, m) => s + (m.fats || 0), 0) || 0,
-        carbs: data.meals_today?.reduce((s, m) => s + (m.carbs || 0), 0) || 0,
-      };
-    } catch(e) {}
-    renderAll();
-  }
+function startGame() {
+  birdY = 250;
+  velocity = 0;
+  pipes = [];
+  score = 0;
+  fat = 60;
+  running = true;
+  loop();
+}
 
-  async function addWater() {
-    state.water_today = Math.min(state.water_today + 250, 3000);
-    renderDash();
-    if (tg) tg.HapticFeedback.impactOccurred('light');
-    if (userId) {
-      await fetch(`${API}/water`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ user_id: userId, ml: 250 })
-      });
-    }
-  }
+document.addEventListener('click', () => {
+  if(running) velocity = -8;
+});
 
-  async function deleteMeal(i) {
-    const m = state.meals_today[i];
-    state.calories_today -= m.calories;
-    state.proteins -= (m.proteins || 0);
-    state.fats -= (m.fats || 0);
-    state.carbs -= (m.carbs || 0);
-    state.meals_today.splice(i, 1);
-    renderDash();
-    if (userId) {
-      await fetch(`${API}/meal/delete`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ user_id: userId, index: i })
-      });
-    }
-  }
+function loop() {
+  if(!running) return;
 
-  function renderAll() {
-    renderDash();
-    renderHistory();
-    renderDate();
-  }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  function renderDate() {
-    const d = new Date();
-    const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-    const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-    document.getElementById('dash-date').textContent = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
-  }
+  velocity += gravity;
+  birdY += velocity;
 
-  function renderDash() {
-    const { calories_today, calories_target, water_today, meals_today, proteins, fats, carbs } = state;
-
-    const pct = Math.min(calories_today / calories_target, 1);
-    const circ = 276.46;
-    document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * pct);
-    document.getElementById('ring-eaten').textContent = calories_today;
-    document.getElementById('ring-target').textContent = calories_target;
-
-    document.getElementById('m-p').textContent = proteins + 'г';
-    document.getElementById('m-f').textContent = fats + 'г';
-    document.getElementById('m-c').textContent = carbs + 'г';
-    document.getElementById('bar-p').style.width = Math.min(proteins / 150 * 100, 100) + '%';
-    document.getElementById('bar-f').style.width = Math.min(fats / 80 * 100, 100) + '%';
-    document.getElementById('bar-c').style.width = Math.min(carbs / 250 * 100, 100) + '%';
-
-    const drops = document.getElementById('water-drops');
-    drops.innerHTML = '';
-    for (let i = 0; i < 8; i++) {
-      const d = document.createElement('div');
-      d.className = 'water-drop' + (i < Math.floor(water_today / 250) ? ' filled' : '');
-      drops.appendChild(d);
-    }
-    document.getElementById('water-ml').textContent = water_today;
-
-    const ml = document.getElementById('meals-list');
-    if (!meals_today.length) {
-      ml.innerHTML = '<div class="empty-state">Пока ничего не записано 🍽</div>';
-    } else {
-      ml.innerHTML = meals_today.map((m, i) => `
-        <div class="meal-item">
-          <span class="meal-name">${m.meal}</span>
-          <span class="meal-cal">${m.calories}</span>
-          <button class="meal-del" onclick="deleteMeal(${i})">×</button>
-        </div>
-      `).join('');
-    }
-  }
-
-  function renderHistory() {
-    const list = document.getElementById('history-list');
-    if (!state.history.length) {
-      list.innerHTML = '<div class="empty-state">История пока пуста — начни записывать питание!</div>';
-      return;
-    }
-    list.innerHTML = [...state.history].reverse().map(d => {
-      const pct = Math.min(d.calories / (d.target || 2000) * 100, 100);
-      return `
-        <div class="history-day">
-          <div class="history-date">${d.date}</div>
-          <div class="history-row">
-            <span>🔥 Калории</span>
-            <span class="history-val">${d.calories} <span style="font-size:12px;color:var(--muted)">/ ${d.target || 2000}</span></span>
-          </div>
-          <div class="history-bar-wrap"><div class="history-bar" style="width:${pct}%"></div></div>
-          <div class="history-row">
-            <span>💧 Вода</span>
-            <span class="history-val">${d.water || 0} мл</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function showPage(id, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    btn.classList.add('active');
-    if (id === 'history') renderHistory();
-    if (id === 'dash') loadData();
-  }
-
-  function openTopic(id) {
-    document.getElementById('topic-' + id).classList.add('open');
-    if (tg) tg.BackButton.show();
-  }
-
-  function closeTopic(id) {
-    document.getElementById('topic-' + id).classList.remove('open');
-    if (tg) tg.BackButton.hide();
-  }
-
-  function sendQuestion() {
-    const text = document.getElementById('ask-text').value.trim();
-    if (!text) return;
-    if (tg) tg.sendData(JSON.stringify({ type: 'question', text }));
-    document.getElementById('ask-text').value = '';
-    document.getElementById('ask-success').style.display = 'block';
-    setTimeout(() => document.getElementById('ask-success').style.display = 'none', 4000);
-  }
-
-  if (tg) {
-    tg.BackButton.onClick(() => {
-      document.querySelectorAll('.topic-content.open').forEach(t => t.classList.remove('open'));
-      tg.BackButton.hide();
+  if (Math.random() < 0.02) {
+    pipes.push({
+      x: canvas.width,
+      gapY: Math.random() * 250 + 100
     });
   }
 
-  loadData();
+  for (let i = pipes.length - 1; i >= 0; i--) {
+    const p = pipes[i];
+    p.x -= 3;
+
+    ctx.fillStyle = '#c8f135';
+    ctx.fillRect(p.x, 0, 60, p.gapY - 90);
+    ctx.fillRect(p.x, p.gapY + 90, 60, canvas.height);
+
+    if (p.x + 60 < 120 && !p.passed) {
+      p.passed = true;
+      score++;
+      fat = Math.max(20, fat - 2);
+    }
+
+    if (
+      120 + fat > p.x &&
+      120 - fat < p.x + 60 &&
+      (birdY - fat < p.gapY - 90 || birdY + fat > p.gapY + 90)
+    ) {
+      running = false;
+    }
+  }
+
+  if (birdY > canvas.height || birdY < 0) {
+    running = false;
+  }
+
+  ctx.fillStyle = '#ffb347';
+  ctx.beginPath();
+  ctx.arc(120, birdY, fat, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '30px Arial';
+  ctx.fillText(score, 20, 50);
+
+  if (!running) {
+    ctx.fillStyle = '#fff';
+    ctx.font = '28px Arial';
+    ctx.fillText('GAME OVER', 90, 300);
+    return;
+  }
+
+  requestAnimationFrame(loop);
+}
 </script>
+
 </body>
 </html>
