@@ -14,6 +14,8 @@ from telegram.ext import (
 from dotenv import load_dotenv
 import storage
 import ai
+import api
+api.start_api_thread()
 
 load_dotenv()
 

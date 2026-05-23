@@ -605,10 +605,9 @@
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.expand(); tg.setHeaderColor('#0a0a0f'); }
 
-  const BOT_API = 'https://api.telegram.org/bot' + (tg?.initDataUnsafe?.user ? '' : '');
   const userId = tg?.initDataUnsafe?.user?.id;
+  const API = 'https://fitness-bot-app-production.up.railway.app/api';
 
-  // State
   let state = {
     calories_today: 0,
     calories_target: 2000,
@@ -618,40 +617,50 @@
     history: []
   };
 
-  // Load from Telegram storage
   async function loadData() {
-    if (!tg) return renderAll();
-    tg.CloudStorage.getItems(['state'], (err, vals) => {
-      if (!err && vals.state) {
-        try {
-          const saved = JSON.parse(vals.state);
-          const today = new Date().toISOString().slice(0,10);
-          if (saved.date === today) {
-            state = { ...state, ...saved };
-          } else {
-            // New day - save yesterday to history
-            if (saved.calories_today > 0) {
-              state.history = [...(saved.history || []), {
-                date: saved.date,
-                calories: saved.calories_today,
-                target: saved.calories_target,
-                water: saved.water_today || 0
-              }].slice(-7);
-            } else {
-              state.history = saved.history || [];
-            }
-            state.calories_target = saved.calories_target || 2000;
-          }
-        } catch(e) {}
-      }
-      renderAll();
-    });
+    if (!userId) return renderAll();
+    try {
+      const res = await fetch(`${API}/get/${userId}`);
+      const data = await res.json();
+      state = {
+        ...state,
+        ...data,
+        proteins: data.meals_today?.reduce((s, m) => s + (m.proteins || 0), 0) || 0,
+        fats: data.meals_today?.reduce((s, m) => s + (m.fats || 0), 0) || 0,
+        carbs: data.meals_today?.reduce((s, m) => s + (m.carbs || 0), 0) || 0,
+      };
+    } catch(e) {}
+    renderAll();
   }
 
-  function saveData() {
-    if (!tg) return;
-    const today = new Date().toISOString().slice(0,10);
-    tg.CloudStorage.setItem('state', JSON.stringify({...state, date: today}));
+  async function addWater() {
+    state.water_today = Math.min(state.water_today + 250, 3000);
+    renderDash();
+    if (tg) tg.HapticFeedback.impactOccurred('light');
+    if (userId) {
+      await fetch(`${API}/water`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ user_id: userId, ml: 250 })
+      });
+    }
+  }
+
+  async function deleteMeal(i) {
+    const m = state.meals_today[i];
+    state.calories_today -= m.calories;
+    state.proteins -= (m.proteins || 0);
+    state.fats -= (m.fats || 0);
+    state.carbs -= (m.carbs || 0);
+    state.meals_today.splice(i, 1);
+    renderDash();
+    if (userId) {
+      await fetch(`${API}/meal/delete`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ user_id: userId, index: i })
+      });
+    }
   }
 
   function renderAll() {
@@ -670,14 +679,12 @@
   function renderDash() {
     const { calories_today, calories_target, water_today, meals_today, proteins, fats, carbs } = state;
 
-    // Ring
     const pct = Math.min(calories_today / calories_target, 1);
     const circ = 276.46;
     document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * pct);
     document.getElementById('ring-eaten').textContent = calories_today;
     document.getElementById('ring-target').textContent = calories_target;
 
-    // Macros
     document.getElementById('m-p').textContent = proteins + 'г';
     document.getElementById('m-f').textContent = fats + 'г';
     document.getElementById('m-c').textContent = carbs + 'г';
@@ -685,7 +692,6 @@
     document.getElementById('bar-f').style.width = Math.min(fats / 80 * 100, 100) + '%';
     document.getElementById('bar-c').style.width = Math.min(carbs / 250 * 100, 100) + '%';
 
-    // Water drops
     const drops = document.getElementById('water-drops');
     drops.innerHTML = '';
     for (let i = 0; i < 8; i++) {
@@ -695,7 +701,6 @@
     }
     document.getElementById('water-ml').textContent = water_today;
 
-    // Meals
     const ml = document.getElementById('meals-list');
     if (!meals_today.length) {
       ml.innerHTML = '<div class="empty-state">Пока ничего не записано 🍽</div>';
@@ -708,24 +713,6 @@
         </div>
       `).join('');
     }
-  }
-
-  function deleteMeal(i) {
-    const m = state.meals_today[i];
-    state.calories_today -= m.calories;
-    state.proteins -= (m.proteins || 0);
-    state.fats -= (m.fats || 0);
-    state.carbs -= (m.carbs || 0);
-    state.meals_today.splice(i, 1);
-    saveData();
-    renderDash();
-  }
-
-  function addWater() {
-    state.water_today = Math.min(state.water_today + 250, 3000);
-    saveData();
-    renderDash();
-    if (tg) tg.HapticFeedback.impactOccurred('light');
   }
 
   function renderHistory() {
@@ -759,6 +746,7 @@
     document.getElementById('page-' + id).classList.add('active');
     btn.classList.add('active');
     if (id === 'history') renderHistory();
+    if (id === 'dash') loadData();
   }
 
   function openTopic(id) {
@@ -774,10 +762,7 @@
   function sendQuestion() {
     const text = document.getElementById('ask-text').value.trim();
     if (!text) return;
-    // Send via bot
-    if (tg) {
-      tg.sendData(JSON.stringify({ type: 'question', text }));
-    }
+    if (tg) tg.sendData(JSON.stringify({ type: 'question', text }));
     document.getElementById('ask-text').value = '';
     document.getElementById('ask-success').style.display = 'block';
     setTimeout(() => document.getElementById('ask-success').style.display = 'none', 4000);
@@ -787,20 +772,6 @@
     tg.BackButton.onClick(() => {
       document.querySelectorAll('.topic-content.open').forEach(t => t.classList.remove('open'));
       tg.BackButton.hide();
-    });
-    tg.onEvent('webAppData', (data) => {
-      try {
-        const d = JSON.parse(data.data);
-        if (d.type === 'meal') {
-          state.meals_today.push(d);
-          state.calories_today += d.calories;
-          state.proteins += d.proteins || 0;
-          state.fats += d.fats || 0;
-          state.carbs += d.carbs || 0;
-          saveData();
-          renderDash();
-        }
-      } catch(e) {}
     });
   }
 
