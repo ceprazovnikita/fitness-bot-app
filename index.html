@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitBot</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --accent: #c8f135;
+    --accent2: #7c3aed;
+    --text: #f0f0f0;
+    --muted: #6b6b80;
+    --danger: #ff4d6d;
+    --water: #38bdf8;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid #ffffff0d;
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color .2s;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn svg { width: 22px; height: 22px; }
+
+  /* PAGES */
+  .page { display: none; padding: 20px 16px 90px; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* HEADER */
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .page-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    border: 1px solid #ffffff08;
+  }
+  .card-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* CALORIE RING */
+  .ring-wrap {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .ring-svg { flex-shrink: 0; }
+  .ring-track { fill: none; stroke: var(--surface2); stroke-width: 8; }
+  .ring-fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset .8s ease;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+  .ring-center { text-anchor: middle; dominant-baseline: middle; }
+  .ring-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; fill: var(--text); }
+  .ring-label { font-size: 10px; fill: var(--muted); }
+
+  .ring-stats { flex: 1; }
+  .ring-stat { margin-bottom: 10px; }
+  .ring-stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .ring-stat-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .ring-stat-fill { height: 100%; border-radius: 2px; transition: width .8s ease; }
+
+  /* MACROS */
+  .macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .macro {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .macro-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
+  .macro-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* WATER */
+  .water-track {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .water-drop {
+    width: 32px; height: 32px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: var(--surface2);
+    border: 2px solid var(--surface2);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .water-drop.filled { background: var(--water); border-color: var(--water); }
+  .water-btn {
+    background: var(--water);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  /* MEALS LIST */
+  .meal-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ffffff08;
+  }
+  .meal-item:last-child { border-bottom: none; }
+  .meal-name { font-size: 14px; flex: 1; padding-right: 10px; }
+  .meal-cal { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); }
+  .meal-del { color: var(--danger); font-size: 18px; cursor: pointer; padding: 0 8px; background: none; border: none; }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 30px 0;
+    font-size: 14px;
+  }
+
+  /* HISTORY */
+  .history-day {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    border: 1px solid #ffffff08;
+  }
+  .history-date { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .history-bar-wrap { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+  .history-bar { height: 100%; background: var(--accent); border-radius: 3px; }
+  .history-row { display: flex; justify-content: space-between; font-size: 13px; }
+  .history-val { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+
+  /* KNOWLEDGE */
+  .knowledge-grid { display: grid; gap: 10px; }
+  .topic-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid #ffffff08;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+  .topic-card:active { border-color: var(--accent); }
+  .topic-icon { font-size: 28px; margin-bottom: 8px; }
+  .topic-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .topic-desc { font-size: 12px; color: var(--muted); }
+
+  .topic-content {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 20px 16px 40px;
+  }
+  .topic-content.open { display: block; }
+  .topic-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .topic-body h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    margin: 20px 0 8px;
+    letter-spacing: 1px;
+  }
+  .topic-body p { font-size: 14px; color: #c0c0d0; line-height: 1.7; margin-bottom: 10px; }
+  .topic-body ul { padding-left: 16px; }
+  .topic-body li { font-size: 14px; color: #c0c0d0; line-height: 1.8; }
+  .tip-box {
+    background: #c8f13512;
+    border: 1px solid #c8f13530;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ASK */
+  .ask-intro {
+    background: linear-gradient(135deg, #7c3aed22, #c8f13510);
+    border: 1px solid #7c3aed44;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .ask-intro-icon { font-size: 40px; margin-bottom: 10px; }
+  .ask-intro-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; margin-bottom: 6px; }
+  .ask-intro-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .ask-form textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid #ffffff15;
+    border-radius: 12px;
+    padding: 14px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    height: 120px;
+    outline: none;
+    transition: border-color .2s;
+    margin-bottom: 12px;
+  }
+  .ask-form textarea:focus { border-color: var(--accent); }
+
+  .btn-accent {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .btn-accent:active { opacity: .8; }
+
+  .success-msg {
+    display: none;
+    background: #c8f13515;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: var(--accent);
+    font-size: 14px;
+  }
+
+  /* BMI badge */
+  .bmi-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .bmi-norm { background: #c8f13520; color: var(--accent); }
+  .bmi-under { background: #38bdf820; color: var(--water); }
+  .bmi-over { background: #ff4d6d20; color: var(--danger); }
+
+  .animate-in {
+    animation: fadeUp .4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE: DASHBOARD -->
+<div class="page active" id="page-dash">
+  <div class="page-title">СЕГОДНЯ</div>
+  <div class="page-sub" id="dash-date">загрузка...</div>
+
+  <div class="card animate-in">
+    <div class="card-title">Калории</div>
+    <div class="ring-wrap">
+      <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+        <circle class="ring-track" cx="55" cy="55" r="44"/>
+        <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="44"
+          stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
+        <text class="ring-center" x="55" y="50">
+          <tspan class="ring-num" id="ring-eaten">0</tspan>
+        </text>
+        <text class="ring-center ring-label" x="55" y="68">из <tspan id="ring-target">2000</tspan></text>
+      </svg>
+      <div class="ring-stats">
+        <div class="ring-stat">
+          <div class="ring-stat-label">Белки</div>
+          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-p" style="width:0%;background:#c8f135"></div></div>
+        </div>
+        <div class="ring-stat">
+          <div class="ring-stat-label">Жиры</div>
+          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-f" style="width:0%;background:#f59e0b"></div></div>
+        </div>
+        <div class="ring-stat">
+          <div class="ring-stat-label">Углеводы</div>
+          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-c" style="width:0%;background:#7c3aed"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="macros animate-in" style="animation-delay:.1s;margin-bottom:12px">
+    <div class="macro"><div class="macro-val" id="m-p" style="color:#c8f135">0г</div><div class="macro-label">Белки</div></div>
+    <div class="macro"><div class="macro-val" id="m-f" style="color:#f59e0b">0г</div><div class="macro-label">Жиры</div></div>
+    <div class="macro"><div class="macro-val" id="m-c" style="color:#7c3aed">0г</div><div class="macro-label">Углеводы</div></div>
+  </div>
+
+  <!-- WATER -->
+  <div class="card animate-in" style="animation-delay:.15s">
+    <div class="card-title">Вода</div>
+    <div class="water-track" id="water-drops"></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
+      <span id="water-ml">0</span> мл из 2000 мл
+    </div>
+    <button class="water-btn" onclick="addWater()">+ 250 мл</button>
+  </div>
+
+  <!-- MEALS -->
+  <div class="card animate-in" style="animation-delay:.2s">
+    <div class="card-title">Приёмы пищи</div>
+    <div id="meals-list"><div class="empty-state">Пока ничего не записано 🍽</div></div>
+  </div>
+</div>
+
+<!-- PAGE: HISTORY -->
+<div class="page" id="page-history">
+  <div class="page-title">ИСТОРИЯ</div>
+  <div class="page-sub">Последние 7 дней</div>
+  <div id="history-list"><div class="empty-state">История пока пуста</div></div>
+</div>
+
+<!-- PAGE: KNOWLEDGE -->
+<div class="page" id="page-knowledge">
+  <div class="page-title">ЗНАНИЯ</div>
+  <div class="page-sub">Всё о здоровом образе жизни</div>
+  <div class="knowledge-grid">
+    <div class="topic-card" onclick="openTopic('nutrition')">
+      <div class="topic-icon">🥗</div>
+      <div class="topic-name">Питание</div>
+      <div class="topic-desc">Основы правильного рациона и макронутриенты</div>
+    </div>
+    <div class="topic-card" onclick="openTopic('water')">
+      <div class="topic-icon">💧</div>
+      <div class="topic-name">Водно-солевой баланс</div>
+      <div class="topic-desc">Почему вода важна и сколько её пить</div>
+    </div>
+    <div class="topic-card" onclick="openTopic('workout')">
+      <div class="topic-icon">🏋️</div>
+      <div class="topic-name">Тренировки</div>
+      <div class="topic-desc">Как правильно тренироваться для результата</div>
+    </div>
+    <div class="topic-card" onclick="openTopic('sleep')">
+      <div class="topic-icon">😴</div>
+      <div class="topic-name">Сон и восстановление</div>
+      <div class="topic-desc">Роль сна в похудении и наборе мышц</div>
+    </div>
+    <div class="topic-card" onclick="openTopic('calories')">
+      <div class="topic-icon">🔥</div>
+      <div class="topic-name">Дефицит калорий</div>
+      <div class="topic-desc">Как рассчитать и правильно создать дефицит</div>
+    </div>
+    <div class="topic-card" onclick="openTopic('protein')">
+      <div class="topic-icon">🥩</div>
+      <div class="topic-name">Белок</div>
+      <div class="topic-desc">Зачем нужен белок и где его брать</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPIC OVERLAYS -->
+<div class="topic-content" id="topic-nutrition">
+  <button class="topic-back" onclick="closeTopic('nutrition')">← Назад</button>
+  <div class="page-title">ПИТАНИЕ</div>
+  <div class="topic-body">
+    <h3>Что такое макронутриенты?</h3>
+    <p>Макронутриенты — это три основных питательных вещества: белки, жиры и углеводы. Каждый выполняет свою роль в организме.</p>
+    <div class="tip-box">⚡ Золотое правило: 30% белки / 30% жиры / 40% углеводы от суточной нормы калорий</div>
+    <h3>Белки (4 ккал/г)</h3>
+    <p>Строительный материал для мышц. Норма: 1.6–2.2 г на кг веса тела. Источники: мясо, рыба, яйца, творог, бобовые.</p>
+    <h3>Жиры (9 ккал/г)</h3>
+    <p>Необходимы для гормонов и усвоения витаминов. Не меньше 0.8 г на кг веса. Источники: авокадо, орехи, оливковое масло, рыба.</p>
+    <h3>Углеводы (4 ккал/г)</h3>
+    <p>Основное топливо для мозга и мышц. Выбирай сложные углеводы: крупы, овощи, цельнозерновой хлеб.</p>
+    <h3>Частота питания</h3>
+    <p>Ешь 3–5 раз в день примерно в одно время. Это помогает контролировать голод и стабилизирует уровень сахара в крови.</p>
+    <div class="tip-box">💡 Не пропускай завтрак — он запускает метаболизм на весь день</div>
+  </div>
+</div>
+
+<div class="topic-content" id="topic-water">
+  <button class="topic-back" onclick="closeTopic('water')">← Назад</button>
+  <div class="page-title">ВОДА</div>
+  <div class="topic-body">
+    <h3>Почему вода так важна?</h3>
+    <p>Тело на 60–70% состоит из воды. Даже небольшое обезвоживание (1–2%) снижает физическую и умственную производительность на 10–20%.</p>
+    <h3>Сколько пить?</h3>
+    <p>Базовая норма: 30–35 мл на кг веса тела. При активных тренировках добавь ещё 500–1000 мл. В жару — ещё больше.</p>
+    <div class="tip-box">💧 Начинай день со стакана воды сразу после пробуждения — это запускает обмен веществ</div>
+    <h3>Электролиты</h3>
+    <p>При активных тренировках вместе с потом уходят соли (натрий, калий, магний). Восполняй их через еду или специальные напитки.</p>
+    <h3>Признаки обезвоживания</h3>
+    <ul>
+      <li>Тёмная моча</li>
+      <li>Головная боль</li>
+      <li>Усталость и раздражительность</li>
+      <li>Сухость во рту</li>
+      <li>Снижение концентрации</li>
+    </ul>
+    <div class="tip-box">✅ Цвет мочи — лучший индикатор: светло-жёлтый = норма, тёмный = пей больше</div>
+  </div>
+</div>
+
+<div class="topic-content" id="topic-workout">
+  <button class="topic-back" onclick="closeTopic('workout')">← Назад</button>
+  <div class="page-title">ТРЕНИРОВКИ</div>
+  <div class="topic-body">
+    <h3>Сколько тренироваться?</h3>
+    <p>ВОЗ рекомендует минимум 150 минут умеренной активности в неделю. Для изменения состава тела — 3–5 силовых тренировок в неделю.</p>
+    <h3>Прогрессивная перегрузка</h3>
+    <p>Главный принцип роста мышц: постепенно увеличивай нагрузку. Это может быть больший вес, больше повторений или меньший отдых.</p>
+    <div class="tip-box">🏋️ Увеличивай рабочий вес на 2.5–5 кг когда можешь сделать верхнюю границу повторений с хорошей техникой</div>
+    <h3>Кардио</h3>
+    <p>Не замена силовым, а дополнение. 2–3 кардиосессии по 30–40 минут в неделю улучшают здоровье сердца и ускоряют жиросжигание.</p>
+    <h3>Восстановление</h3>
+    <p>Мышцы растут не во время тренировки, а во время отдыха. Не тренируй одну группу мышц чаще 2 раз в неделю.</p>
+    <h3>Питание вокруг тренировки</h3>
+    <ul>
+      <li>За 1.5–2 часа до: углеводы + немного белка</li>
+      <li>После тренировки: белок 20–40г + углеводы</li>
+    </ul>
+  </div>
+</div>
+
+<div class="topic-content" id="topic-sleep">
+  <button class="topic-back" onclick="closeTopic('sleep')">← Назад</button>
+  <div class="page-title">СОН</div>
+  <div class="topic-body">
+    <h3>Сон и похудение</h3>
+    <p>При недосыпе повышается грелин (гормон голода) и снижается лептин (гормон сытости). Результат — ты ешь на 300–400 ккал больше на следующий день.</p>
+    <div class="tip-box">😴 7–9 часов сна — не роскошь, а необходимость для результата в зале</div>
+    <h3>Гормон роста</h3>
+    <p>80% суточного гормона роста выделяется во сне. Именно он отвечает за восстановление мышц и жиросжигание ночью.</p>
+    <h3>Рекомендации</h3>
+    <ul>
+      <li>Ложись и вставай в одно время</li>
+      <li>Убирай телефон за час до сна</li>
+      <li>Температура в комнате 18–20°C оптимальна</li>
+      <li>Не ешь за 2–3 часа до сна</li>
+      <li>Избегай кофеина после 14:00</li>
+    </ul>
+    <h3>Дневной сон</h3>
+    <p>20–30 минут дневного сна восстанавливают когнитивные функции и физическую производительность. Главное — не дольше, иначе почувствуешь вялость.</p>
+  </div>
+</div>
+
+<div class="topic-content" id="topic-calories">
+  <button class="topic-back" onclick="closeTopic('calories')">← Назад</button>
+  <div class="page-title">ДЕФИЦИТ КАЛОРИЙ</div>
+  <div class="topic-body">
+    <h3>Что такое дефицит?</h3>
+    <p>Дефицит калорий — это когда ты тратишь больше калорий, чем потребляешь. Только так можно сбросить жир.</p>
+    <h3>Какой дефицит создавать?</h3>
+    <p>Безопасный дефицит: 300–500 ккал в день. Это даст потерю ~0.3–0.5 кг жира в неделю без потери мышц.</p>
+    <div class="tip-box">⚠️ Дефицит больше 1000 ккал ведёт к потере мышц, замедлению метаболизма и срывам</div>
+    <h3>Формула TDEE</h3>
+    <p>TDEE (Total Daily Energy Expenditure) — твои суточные траты. Включает базальный метаболизм + физическая активность + термический эффект пищи.</p>
+    <h3>Почему вес стоит?</h3>
+    <ul>
+      <li>Переоценка калорий в еде</li>
+      <li>Задержка воды (особенно при стрессе)</li>
+      <li>Адаптация метаболизма через 4–6 недель</li>
+      <li>Набор мышечной массы параллельно с потерей жира</li>
+    </ul>
+    <div class="tip-box">💡 Делай рефид (1 день с нормой калорий) раз в 1–2 недели — это перезапускает метаболизм</div>
+  </div>
+</div>
+
+<div class="topic-content" id="topic-protein">
+  <button class="topic-back" onclick="closeTopic('protein')">← Назад</button>
+  <div class="page-title">БЕЛОК</div>
+  <div class="topic-body">
+    <h3>Зачем нужен белок?</h3>
+    <p>Белок — строительный материал для мышц, гормонов, ферментов и антител. Он также даёт самое долгое чувство сытости из всех макронутриентов.</p>
+    <h3>Норма потребления</h3>
+    <p>При активных тренировках: 1.6–2.2 г на кг веса тела. При похудении можно до 2.5 г — это защищает мышцы от распада.</p>
+    <div class="tip-box">🥩 Распределяй белок равномерно по приёмам пищи: 20–40г за раз усваивается оптимально</div>
+    <h3>Лучшие источники</h3>
+    <ul>
+      <li>Куриная грудка — 31г/100г</li>
+      <li>Творог 0% — 18г/100г</li>
+      <li>Яйца — 13г/100г</li>
+      <li>Тунец — 25г/100г</li>
+      <li>Греческий йогурт — 10г/100г</li>
+      <li>Чечевица — 9г/100г</li>
+    </ul>
+    <h3>Протеиновые добавки</h3>
+    <p>Сывороточный протеин — удобный способ добрать белок. Не замена еде, а дополнение. 1–2 порции в день вполне достаточно.</p>
+  </div>
+</div>
+
+<!-- PAGE: ASK -->
+<div class="page" id="page-ask">
+  <div class="page-title">ТРЕНЕР</div>
+  <div class="page-sub">Задай вопрос анонимно</div>
+
+  <div class="ask-intro">
+    <div class="ask-intro-icon">🏆</div>
+    <div class="ask-intro-title">Личная консультация</div>
+    <div class="ask-intro-text">Задай любой вопрос о питании, тренировках или здоровье. Тренер ответит тебе лично и анонимно.</div>
+  </div>
+
+  <div class="ask-form">
+    <textarea id="ask-text" placeholder="Напиши свой вопрос здесь..."></textarea>
+    <button class="btn-accent" onclick="sendQuestion()">ОТПРАВИТЬ ВОПРОС</button>
+  </div>
+  <div class="success-msg" id="ask-success">
+    ✅ Вопрос отправлен! Ожидай ответа в боте.
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('dash', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Сегодня
+  </button>
+  <button class="nav-btn" onclick="showPage('history', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    История
+  </button>
+  <button class="nav-btn" onclick="showPage('knowledge', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Знания
+  </button>
+  <button class="nav-btn" onclick="showPage('ask', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Тренер
+  </button>
+</nav>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.expand(); tg.setHeaderColor('#0a0a0f'); }
+
+  const BOT_API = 'https://api.telegram.org/bot' + (tg?.initDataUnsafe?.user ? '' : '');
+  const userId = tg?.initDataUnsafe?.user?.id;
+
+  // State
+  let state = {
+    calories_today: 0,
+    calories_target: 2000,
+    water_today: 0,
+    meals_today: [],
+    proteins: 0, fats: 0, carbs: 0,
+    history: []
+  };
+
+  // Load from Telegram storage
+  async function loadData() {
+    if (!tg) return renderAll();
+    tg.CloudStorage.getItems(['state'], (err, vals) => {
+      if (!err && vals.state) {
+        try {
+          const saved = JSON.parse(vals.state);
+          const today = new Date().toISOString().slice(0,10);
+          if (saved.date === today) {
+            state = { ...state, ...saved };
+          } else {
+            // New day - save yesterday to history
+            if (saved.calories_today > 0) {
+              state.history = [...(saved.history || []), {
+                date: saved.date,
+                calories: saved.calories_today,
+                target: saved.calories_target,
+                water: saved.water_today || 0
+              }].slice(-7);
+            } else {
+              state.history = saved.history || [];
+            }
+            state.calories_target = saved.calories_target || 2000;
+          }
+        } catch(e) {}
+      }
+      renderAll();
+    });
+  }
+
+  function saveData() {
+    if (!tg) return;
+    const today = new Date().toISOString().slice(0,10);
+    tg.CloudStorage.setItem('state', JSON.stringify({...state, date: today}));
+  }
+
+  function renderAll() {
+    renderDash();
+    renderHistory();
+    renderDate();
+  }
+
+  function renderDate() {
+    const d = new Date();
+    const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+    const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    document.getElementById('dash-date').textContent = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+  }
+
+  function renderDash() {
+    const { calories_today, calories_target, water_today, meals_today, proteins, fats, carbs } = state;
+
+    // Ring
+    const pct = Math.min(calories_today / calories_target, 1);
+    const circ = 276.46;
+    document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * pct);
+    document.getElementById('ring-eaten').textContent = calories_today;
+    document.getElementById('ring-target').textContent = calories_target;
+
+    // Macros
+    document.getElementById('m-p').textContent = proteins + 'г';
+    document.getElementById('m-f').textContent = fats + 'г';
+    document.getElementById('m-c').textContent = carbs + 'г';
+    document.getElementById('bar-p').style.width = Math.min(proteins / 150 * 100, 100) + '%';
+    document.getElementById('bar-f').style.width = Math.min(fats / 80 * 100, 100) + '%';
+    document.getElementById('bar-c').style.width = Math.min(carbs / 250 * 100, 100) + '%';
+
+    // Water drops
+    const drops = document.getElementById('water-drops');
+    drops.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      const d = document.createElement('div');
+      d.className = 'water-drop' + (i < Math.floor(water_today / 250) ? ' filled' : '');
+      drops.appendChild(d);
+    }
+    document.getElementById('water-ml').textContent = water_today;
+
+    // Meals
+    const ml = document.getElementById('meals-list');
+    if (!meals_today.length) {
+      ml.innerHTML = '<div class="empty-state">Пока ничего не записано 🍽</div>';
+    } else {
+      ml.innerHTML = meals_today.map((m, i) => `
+        <div class="meal-item">
+          <span class="meal-name">${m.meal}</span>
+          <span class="meal-cal">${m.calories}</span>
+          <button class="meal-del" onclick="deleteMeal(${i})">×</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  function deleteMeal(i) {
+    const m = state.meals_today[i];
+    state.calories_today -= m.calories;
+    state.proteins -= (m.proteins || 0);
+    state.fats -= (m.fats || 0);
+    state.carbs -= (m.carbs || 0);
+    state.meals_today.splice(i, 1);
+    saveData();
+    renderDash();
+  }
+
+  function addWater() {
+    state.water_today = Math.min(state.water_today + 250, 3000);
+    saveData();
+    renderDash();
+    if (tg) tg.HapticFeedback.impactOccurred('light');
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('history-list');
+    if (!state.history.length) {
+      list.innerHTML = '<div class="empty-state">История пока пуста — начни записывать питание!</div>';
+      return;
+    }
+    list.innerHTML = [...state.history].reverse().map(d => {
+      const pct = Math.min(d.calories / (d.target || 2000) * 100, 100);
+      return `
+        <div class="history-day">
+          <div class="history-date">${d.date}</div>
+          <div class="history-row">
+            <span>🔥 Калории</span>
+            <span class="history-val">${d.calories} <span style="font-size:12px;color:var(--muted)">/ ${d.target || 2000}</span></span>
+          </div>
+          <div class="history-bar-wrap"><div class="history-bar" style="width:${pct}%"></div></div>
+          <div class="history-row">
+            <span>💧 Вода</span>
+            <span class="history-val">${d.water || 0} мл</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function showPage(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+    if (id === 'history') renderHistory();
+  }
+
+  function openTopic(id) {
+    document.getElementById('topic-' + id).classList.add('open');
+    if (tg) tg.BackButton.show();
+  }
+
+  function closeTopic(id) {
+    document.getElementById('topic-' + id).classList.remove('open');
+    if (tg) tg.BackButton.hide();
+  }
+
+  function sendQuestion() {
+    const text = document.getElementById('ask-text').value.trim();
+    if (!text) return;
+    // Send via bot
+    if (tg) {
+      tg.sendData(JSON.stringify({ type: 'question', text }));
+    }
+    document.getElementById('ask-text').value = '';
+    document.getElementById('ask-success').style.display = 'block';
+    setTimeout(() => document.getElementById('ask-success').style.display = 'none', 4000);
+  }
+
+  if (tg) {
+    tg.BackButton.onClick(() => {
+      document.querySelectorAll('.topic-content.open').forEach(t => t.classList.remove('open'));
+      tg.BackButton.hide();
+    });
+    tg.onEvent('webAppData', (data) => {
+      try {
+        const d = JSON.parse(data.data);
+        if (d.type === 'meal') {
+          state.meals_today.push(d);
+          state.calories_today += d.calories;
+          state.proteins += d.proteins || 0;
+          state.fats += d.fats || 0;
+          state.carbs += d.carbs || 0;
+          saveData();
+          renderDash();
+        }
+      } catch(e) {}
+    });
+  }
+
+  loadData();
+</script>
+</body>
+</html>
