@@ -3,17 +3,17 @@ import json
 import base64
 import logging
 from groq import Groq
-from dotenv import load_dotenv
-
-load_dotenv()
 
 log = logging.getLogger(__name__)
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+
+def get_client():
+    return Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
 def transcribe_audio(audio_path: str) -> str:
     with open(audio_path, "rb") as f:
-        transcription = client.audio.transcriptions.create(
+        transcription = get_client().audio.transcriptions.create(
             file=f,
             model="whisper-large-v3",
             language="ru",
@@ -22,7 +22,7 @@ def transcribe_audio(audio_path: str) -> str:
 
 
 def analyze_calories(text: str) -> dict:
-    response = client.chat.completions.create(
+    response = get_client().chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
             {
@@ -50,7 +50,7 @@ def analyze_calories_from_photo(image_path: str) -> dict:
     ext = image_path.split(".")[-1].lower()
     media_type = "image/jpeg" if ext in ["jpg", "jpeg"] else "image/png"
 
-    response = client.chat.completions.create(
+    response = get_client().chat.completions.create(
         model="meta-llama/llama-4-scout-17b-16e-instruct",
         messages=[
             {
@@ -108,7 +108,7 @@ def get_daily_advice(meals: list, calories_today: int, calories_target: int) -> 
                 f"Дай 2-3 варианта с указанием калорий. Отвечай на русском."
             )
 
-    response = client.chat.completions.create(
+    response = get_client().chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": "Ты дружелюбный диетолог. Давай короткие практичные советы на русском языке."},
