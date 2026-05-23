@@ -11,9 +11,11 @@ from telegram.ext import (
     filters,
     ContextTypes,
 )
+from dotenv import load_dotenv
 import storage
 import ai
 
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
