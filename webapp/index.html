@@ -606,6 +606,7 @@
   if (tg) { tg.expand(); tg.setHeaderColor('#0a0a0f'); }
 
   const userId = tg?.initDataUnsafe?.user?.id;
+  alert('userId: ' + userId + ' | tg: ' + !!tg);
   const API = 'https://fitness-bot-app-production.up.railway.app/api';
 
   let state = {
