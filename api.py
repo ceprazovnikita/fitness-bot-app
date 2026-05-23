@@ -1,9 +1,11 @@
 import os
 import threading
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import storage
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/api/get/<int:user_id>')
 def get_data(user_id):
