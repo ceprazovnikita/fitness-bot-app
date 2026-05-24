@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FitBot</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -31,7 +32,6 @@
     overflow-x: hidden;
   }
 
-  /* NAV */
   .nav {
     position: fixed;
     bottom: 0; left: 0; right: 0;
@@ -59,11 +59,9 @@
   .nav-btn.active { color: var(--accent); }
   .nav-btn svg { width: 22px; height: 22px; }
 
-  /* PAGES */
   .page { display: none; padding: 20px 16px 90px; min-height: 100vh; }
   .page.active { display: block; }
 
-  /* HEADER */
   .page-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 36px;
@@ -73,7 +71,6 @@
   }
   .page-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
 
-  /* CARDS */
   .card {
     background: var(--surface);
     border-radius: var(--radius);
@@ -89,241 +86,165 @@
     margin-bottom: 12px;
   }
 
-  /* CALORIE RING */
-  .ring-wrap {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
+  .ring-wrap { display: flex; align-items: center; gap: 20px; }
   .ring-svg { flex-shrink: 0; }
   .ring-track { fill: none; stroke: var(--surface2); stroke-width: 8; }
   .ring-fill {
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 8;
-    stroke-linecap: round;
-    transition: stroke-dashoffset .8s ease;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
+    fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round;
+    transition: stroke-dashoffset .8s ease; transform: rotate(-90deg); transform-origin: 50% 50%;
   }
   .ring-center { text-anchor: middle; dominant-baseline: middle; }
   .ring-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; fill: var(--text); }
   .ring-label { font-size: 10px; fill: var(--muted); }
-
   .ring-stats { flex: 1; }
   .ring-stat { margin-bottom: 10px; }
   .ring-stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
   .ring-stat-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
   .ring-stat-fill { height: 100%; border-radius: 2px; transition: width .8s ease; }
 
-  /* MACROS */
   .macros { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .macro {
-    background: var(--surface2);
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-  }
+  .macro { background: var(--surface2); border-radius: 12px; padding: 12px; text-align: center; }
   .macro-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
   .macro-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-  /* WATER */
-  .water-track {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-  }
+  .water-track { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
   .water-drop {
-    width: 32px; height: 32px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    background: var(--surface2);
-    border: 2px solid var(--surface2);
-    cursor: pointer;
-    transition: all .2s;
+    width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+    background: var(--surface2); border: 2px solid var(--surface2); cursor: pointer; transition: all .2s;
   }
   .water-drop.filled { background: var(--water); border-color: var(--water); }
   .water-btn {
-    background: var(--water);
-    color: #000;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    width: 100%;
+    background: var(--water); color: #000; border: none; border-radius: 10px;
+    padding: 10px 16px; font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer; width: 100%;
   }
 
-  /* MEALS LIST */
   .meal-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #ffffff08;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid #ffffff08;
   }
   .meal-item:last-child { border-bottom: none; }
   .meal-name { font-size: 14px; flex: 1; padding-right: 10px; }
   .meal-cal { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); }
   .meal-del { color: var(--danger); font-size: 18px; cursor: pointer; padding: 0 8px; background: none; border: none; }
 
-  .empty-state {
-    text-align: center;
-    color: var(--muted);
-    padding: 30px 0;
-    font-size: 14px;
-  }
+  .empty-state { text-align: center; color: var(--muted); padding: 30px 0; font-size: 14px; }
 
-  /* HISTORY */
-  .history-day {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 10px;
-    border: 1px solid #ffffff08;
-  }
+  .history-day { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; border: 1px solid #ffffff08; }
   .history-date { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
   .history-bar-wrap { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin: 8px 0; }
   .history-bar { height: 100%; background: var(--accent); border-radius: 3px; }
   .history-row { display: flex; justify-content: space-between; font-size: 13px; }
   .history-val { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
 
-  /* KNOWLEDGE */
   .knowledge-grid { display: grid; gap: 10px; }
-  .topic-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 18px;
-    border: 1px solid #ffffff08;
-    cursor: pointer;
-    transition: border-color .2s;
-  }
+  .topic-card { background: var(--surface); border-radius: var(--radius); padding: 18px; border: 1px solid #ffffff08; cursor: pointer; transition: border-color .2s; }
   .topic-card:active { border-color: var(--accent); }
   .topic-icon { font-size: 28px; margin-bottom: 8px; }
   .topic-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .topic-desc { font-size: 12px; color: var(--muted); }
 
-  .topic-content {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 200;
-    overflow-y: auto;
-    padding: 20px 16px 40px;
-  }
+  .topic-content { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; padding: 20px 16px 40px; }
   .topic-content.open { display: block; }
-  .topic-back {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--accent);
-    font-size: 14px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    background: none;
-    border: none;
-    font-family: inherit;
-  }
-  .topic-body h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    color: var(--accent);
-    margin: 20px 0 8px;
-    letter-spacing: 1px;
-  }
+  .topic-back { display: flex; align-items: center; gap: 8px; color: var(--accent); font-size: 14px; cursor: pointer; margin-bottom: 20px; background: none; border: none; font-family: inherit; }
+  .topic-body h3 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); margin: 20px 0 8px; letter-spacing: 1px; }
   .topic-body p { font-size: 14px; color: #c0c0d0; line-height: 1.7; margin-bottom: 10px; }
   .topic-body ul { padding-left: 16px; }
   .topic-body li { font-size: 14px; color: #c0c0d0; line-height: 1.8; }
-  .tip-box {
-    background: #c8f13512;
-    border: 1px solid #c8f13530;
-    border-radius: 12px;
-    padding: 14px;
-    margin: 12px 0;
-    font-size: 13px;
-    color: var(--accent);
-  }
+  .tip-box { background: #c8f13512; border: 1px solid #c8f13530; border-radius: 12px; padding: 14px; margin: 12px 0; font-size: 13px; color: var(--accent); }
 
-  /* ASK */
-  .ask-intro {
-    background: linear-gradient(135deg, #7c3aed22, #c8f13510);
-    border: 1px solid #7c3aed44;
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-    text-align: center;
-  }
+  .ask-intro { background: linear-gradient(135deg, #7c3aed22, #c8f13510); border: 1px solid #7c3aed44; border-radius: var(--radius); padding: 20px; margin-bottom: 16px; text-align: center; }
   .ask-intro-icon { font-size: 40px; margin-bottom: 10px; }
   .ask-intro-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; margin-bottom: 6px; }
   .ask-intro-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
-
-  .ask-form textarea {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid #ffffff15;
-    border-radius: 12px;
-    padding: 14px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    resize: none;
-    height: 120px;
-    outline: none;
-    transition: border-color .2s;
-    margin-bottom: 12px;
-  }
+  .ask-form textarea { width: 100%; background: var(--surface); border: 1px solid #ffffff15; border-radius: 12px; padding: 14px; color: var(--text); font-family: inherit; font-size: 14px; resize: none; height: 120px; outline: none; transition: border-color .2s; margin-bottom: 12px; }
   .ask-form textarea:focus { border-color: var(--accent); }
+  .btn-accent { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; cursor: pointer; transition: opacity .2s; }
+  .btn-accent:active { opacity: .8; }
+  .success-msg { display: none; background: #c8f13515; border: 1px solid var(--accent); border-radius: 12px; padding: 16px; text-align: center; color: var(--accent); font-size: 14px; }
 
-  .btn-accent {
+  .animate-in { animation: fadeUp .4s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SCANNER */
+  .scanner-wrap {
+    position: relative;
     width: 100%;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 16px;
+    min-height: 250px;
+  }
+  #scanner-viewport { width: 100%; }
+  #scanner-viewport video { width: 100%; display: block; }
+  #scanner-viewport canvas { display: none; }
+
+  .scanner-line {
+    position: absolute;
+    left: 10%; right: 10%;
+    height: 2px;
     background: var(--accent);
-    color: #000;
-    border: none;
+    box-shadow: 0 0 8px var(--accent);
+    animation: scanLine 2s ease-in-out infinite;
+    top: 50%;
+  }
+  @keyframes scanLine {
+    0%, 100% { top: 20%; }
+    50% { top: 80%; }
+  }
+
+  .scanner-corner {
+    position: absolute;
+    width: 24px; height: 24px;
+    border-color: var(--accent);
+    border-style: solid;
+    border-width: 0;
+  }
+  .scanner-corner.tl { top: 16px; left: 16px; border-top-width: 3px; border-left-width: 3px; }
+  .scanner-corner.tr { top: 16px; right: 16px; border-top-width: 3px; border-right-width: 3px; }
+  .scanner-corner.bl { bottom: 16px; left: 16px; border-bottom-width: 3px; border-left-width: 3px; }
+  .scanner-corner.br { bottom: 16px; right: 16px; border-bottom-width: 3px; border-right-width: 3px; }
+
+  .scan-btn {
+    width: 100%;
+    padding: 16px;
     border-radius: 12px;
-    padding: 14px;
+    border: none;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
+    font-size: 20px;
     letter-spacing: 1px;
     cursor: pointer;
+    margin-bottom: 12px;
     transition: opacity .2s;
   }
-  .btn-accent:active { opacity: .8; }
+  .scan-btn:active { opacity: .8; }
+  .scan-btn-start { background: var(--accent); color: #000; }
+  .scan-btn-stop { background: var(--danger); color: #fff; }
 
-  .success-msg {
+  .product-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid #c8f13530;
+    margin-bottom: 12px;
     display: none;
-    background: #c8f13515;
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    color: var(--accent);
-    font-size: 14px;
   }
+  .product-card.show { display: block; }
+  .product-name { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+  .product-macros { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .product-macro { text-align: center; background: var(--surface2); border-radius: 10px; padding: 10px 6px; }
+  .product-macro-val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+  .product-macro-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-  /* BMI badge */
-  .bmi-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 6px;
-  }
-  .bmi-norm { background: #c8f13520; color: var(--accent); }
-  .bmi-under { background: #38bdf820; color: var(--water); }
-  .bmi-over { background: #ff4d6d20; color: var(--danger); }
+  .portion-wrap { margin-bottom: 16px; }
+  .portion-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .portion-row { display: flex; align-items: center; gap: 10px; }
+  .portion-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #ffffff20; background: var(--surface2); color: var(--text); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .portion-input { flex: 1; background: var(--surface2); border: 1px solid #ffffff15; border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: inherit; font-size: 16px; text-align: center; outline: none; }
 
-  .animate-in {
-    animation: fadeUp .4s ease both;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .scan-status { text-align: center; padding: 12px; font-size: 14px; color: var(--muted); }
+  .scan-status.error { color: var(--danger); }
+  .scan-status.success { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -332,53 +253,33 @@
 <div class="page active" id="page-dash">
   <div class="page-title">СЕГОДНЯ</div>
   <div class="page-sub" id="dash-date">загрузка...</div>
-
   <div class="card animate-in">
     <div class="card-title">Калории</div>
     <div class="ring-wrap">
       <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
         <circle class="ring-track" cx="55" cy="55" r="44"/>
-        <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="44"
-          stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
-        <text class="ring-center" x="55" y="50">
-          <tspan class="ring-num" id="ring-eaten">0</tspan>
-        </text>
+        <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="44" stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
+        <text class="ring-center" x="55" y="50"><tspan class="ring-num" id="ring-eaten">0</tspan></text>
         <text class="ring-center ring-label" x="55" y="68">из <tspan id="ring-target">2000</tspan></text>
       </svg>
       <div class="ring-stats">
-        <div class="ring-stat">
-          <div class="ring-stat-label">Белки</div>
-          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-p" style="width:0%;background:#c8f135"></div></div>
-        </div>
-        <div class="ring-stat">
-          <div class="ring-stat-label">Жиры</div>
-          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-f" style="width:0%;background:#f59e0b"></div></div>
-        </div>
-        <div class="ring-stat">
-          <div class="ring-stat-label">Углеводы</div>
-          <div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-c" style="width:0%;background:#7c3aed"></div></div>
-        </div>
+        <div class="ring-stat"><div class="ring-stat-label">Белки</div><div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-p" style="width:0%;background:#c8f135"></div></div></div>
+        <div class="ring-stat"><div class="ring-stat-label">Жиры</div><div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-f" style="width:0%;background:#f59e0b"></div></div></div>
+        <div class="ring-stat"><div class="ring-stat-label">Углеводы</div><div class="ring-stat-bar"><div class="ring-stat-fill" id="bar-c" style="width:0%;background:#7c3aed"></div></div></div>
       </div>
     </div>
   </div>
-
   <div class="macros animate-in" style="animation-delay:.1s;margin-bottom:12px">
     <div class="macro"><div class="macro-val" id="m-p" style="color:#c8f135">0г</div><div class="macro-label">Белки</div></div>
     <div class="macro"><div class="macro-val" id="m-f" style="color:#f59e0b">0г</div><div class="macro-label">Жиры</div></div>
     <div class="macro"><div class="macro-val" id="m-c" style="color:#7c3aed">0г</div><div class="macro-label">Углеводы</div></div>
   </div>
-
-  <!-- WATER -->
   <div class="card animate-in" style="animation-delay:.15s">
     <div class="card-title">Вода</div>
     <div class="water-track" id="water-drops"></div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
-      <span id="water-ml">0</span> мл из 2000 мл
-    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px"><span id="water-ml">0</span> мл из 2000 мл</div>
     <button class="water-btn" onclick="addWater()">+ 250 мл</button>
   </div>
-
-  <!-- MEALS -->
   <div class="card animate-in" style="animation-delay:.2s">
     <div class="card-title">Приёмы пищи</div>
     <div id="meals-list"><div class="empty-state">Пока ничего не записано 🍽</div></div>
@@ -392,41 +293,56 @@
   <div id="history-list"><div class="empty-state">История пока пуста</div></div>
 </div>
 
+<!-- PAGE: SCANNER -->
+<div class="page" id="page-scan">
+  <div class="page-title">СКАНЕР</div>
+  <div class="page-sub">Сканируй штрихкод продукта</div>
+
+  <div class="scanner-wrap" id="scannerWrap" style="display:none">
+    <div id="scanner-viewport"></div>
+    <div class="scanner-line"></div>
+    <div class="scanner-corner tl"></div>
+    <div class="scanner-corner tr"></div>
+    <div class="scanner-corner bl"></div>
+    <div class="scanner-corner br"></div>
+  </div>
+
+  <button class="scan-btn scan-btn-start" id="btnStart" onclick="startScanner()">📷 НАЧАТЬ СКАНИРОВАНИЕ</button>
+  <button class="scan-btn scan-btn-stop" id="btnStop" onclick="stopScanner()" style="display:none">⏹ ОСТАНОВИТЬ</button>
+
+  <div class="scan-status" id="scanStatus">Нажми кнопку и наведи камеру на штрихкод</div>
+
+  <div class="product-card" id="productCard">
+    <div class="product-name" id="productName"></div>
+    <div class="product-macros">
+      <div class="product-macro"><div class="product-macro-val" id="pCal" style="color:var(--accent)">0</div><div class="product-macro-label">ккал</div></div>
+      <div class="product-macro"><div class="product-macro-val" id="pProt" style="color:#c8f135">0г</div><div class="product-macro-label">белки</div></div>
+      <div class="product-macro"><div class="product-macro-val" id="pFat" style="color:#f59e0b">0г</div><div class="product-macro-label">жиры</div></div>
+      <div class="product-macro"><div class="product-macro-val" id="pCarb" style="color:#7c3aed">0г</div><div class="product-macro-label">углев</div></div>
+    </div>
+    <div class="portion-wrap">
+      <div class="portion-label">Порция (г)</div>
+      <div class="portion-row">
+        <button class="portion-btn" onclick="changePortion(-10)">−</button>
+        <input class="portion-input" type="number" id="portionInput" value="100" min="1" oninput="updatePortion()">
+        <button class="portion-btn" onclick="changePortion(10)">+</button>
+      </div>
+    </div>
+    <button class="btn-accent" onclick="addScannedMeal()">ДОБАВИТЬ В ДНЕВНИК</button>
+  </div>
+</div>
+
 <!-- PAGE: KNOWLEDGE -->
 <div class="page" id="page-knowledge">
   <div class="page-title">ЗНАНИЯ</div>
   <div class="page-sub">Всё о здоровом образе жизни</div>
   <div class="knowledge-grid">
-    <div class="topic-card" onclick="openTopic('nutrition')">
-      <div class="topic-icon">🥗</div>
-      <div class="topic-name">Питание</div>
-      <div class="topic-desc">Основы правильного рациона и макронутриенты</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('water')">
-      <div class="topic-icon">💧</div>
-      <div class="topic-name">Водно-солевой баланс</div>
-      <div class="topic-desc">Почему вода важна и сколько её пить</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('workout')">
-      <div class="topic-icon">🏋️</div>
-      <div class="topic-name">Тренировки</div>
-      <div class="topic-desc">Как правильно тренироваться для результата</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('sleep')">
-      <div class="topic-icon">😴</div>
-      <div class="topic-name">Сон и восстановление</div>
-      <div class="topic-desc">Роль сна в похудении и наборе мышц</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('calories')">
-      <div class="topic-icon">🔥</div>
-      <div class="topic-name">Дефицит калорий</div>
-      <div class="topic-desc">Как рассчитать и правильно создать дефицит</div>
-    </div>
-    <div class="topic-card" onclick="openTopic('protein')">
-      <div class="topic-icon">🥩</div>
-      <div class="topic-name">Белок</div>
-      <div class="topic-desc">Зачем нужен белок и где его брать</div>
-    </div>
+    <div class="topic-card" onclick="openTopic('nutrition')"><div class="topic-icon">🥗</div><div class="topic-name">Питание</div><div class="topic-desc">Основы правильного рациона и макронутриенты</div></div>
+    <div class="topic-card" onclick="openTopic('water')"><div class="topic-icon">💧</div><div class="topic-name">Водно-солевой баланс</div><div class="topic-desc">Почему вода важна и сколько её пить</div></div>
+    <div class="topic-card" onclick="openTopic('workout')"><div class="topic-icon">🏋️</div><div class="topic-name">Тренировки</div><div class="topic-desc">Как правильно тренироваться для результата</div></div>
+    <div class="topic-card" onclick="openTopic('sleep')"><div class="topic-icon">😴</div><div class="topic-name">Сон и восстановление</div><div class="topic-desc">Роль сна в похудении и наборе мышц</div></div>
+    <div class="topic-card" onclick="openTopic('calories')"><div class="topic-icon">🔥</div><div class="topic-name">Дефицит калорий</div><div class="topic-desc">Как рассчитать и правильно создать дефицит</div></div>
+    <div class="topic-card" onclick="openTopic('protein')"><div class="topic-icon">🥩</div><div class="topic-name">Белок</div><div class="topic-desc">Зачем нужен белок и где его брать</div></div>
   </div>
 </div>
 
@@ -444,8 +360,6 @@
     <p>Необходимы для гормонов и усвоения витаминов. Не меньше 0.8 г на кг веса. Источники: авокадо, орехи, оливковое масло, рыба.</p>
     <h3>Углеводы (4 ккал/г)</h3>
     <p>Основное топливо для мозга и мышц. Выбирай сложные углеводы: крупы, овощи, цельнозерновой хлеб.</p>
-    <h3>Частота питания</h3>
-    <p>Ешь 3–5 раз в день примерно в одно время. Это помогает контролировать голод и стабилизирует уровень сахара в крови.</p>
     <div class="tip-box">💡 Не пропускай завтрак — он запускает метаболизм на весь день</div>
   </div>
 </div>
@@ -457,19 +371,12 @@
     <h3>Почему вода так важна?</h3>
     <p>Тело на 60–70% состоит из воды. Даже небольшое обезвоживание (1–2%) снижает физическую и умственную производительность на 10–20%.</p>
     <h3>Сколько пить?</h3>
-    <p>Базовая норма: 30–35 мл на кг веса тела. При активных тренировках добавь ещё 500–1000 мл. В жару — ещё больше.</p>
-    <div class="tip-box">💧 Начинай день со стакана воды сразу после пробуждения — это запускает обмен веществ</div>
-    <h3>Электролиты</h3>
-    <p>При активных тренировках вместе с потом уходят соли (натрий, калий, магний). Восполняй их через еду или специальные напитки.</p>
+    <p>Базовая норма: 30–35 мл на кг веса тела. При активных тренировках добавь ещё 500–1000 мл.</p>
+    <div class="tip-box">💧 Начинай день со стакана воды сразу после пробуждения</div>
     <h3>Признаки обезвоживания</h3>
     <ul>
-      <li>Тёмная моча</li>
-      <li>Головная боль</li>
-      <li>Усталость и раздражительность</li>
-      <li>Сухость во рту</li>
-      <li>Снижение концентрации</li>
+      <li>Тёмная моча</li><li>Головная боль</li><li>Усталость и раздражительность</li><li>Сухость во рту</li>
     </ul>
-    <div class="tip-box">✅ Цвет мочи — лучший индикатор: светло-жёлтый = норма, тёмный = пей больше</div>
   </div>
 </div>
 
@@ -480,17 +387,10 @@
     <h3>Сколько тренироваться?</h3>
     <p>ВОЗ рекомендует минимум 150 минут умеренной активности в неделю. Для изменения состава тела — 3–5 силовых тренировок в неделю.</p>
     <h3>Прогрессивная перегрузка</h3>
-    <p>Главный принцип роста мышц: постепенно увеличивай нагрузку. Это может быть больший вес, больше повторений или меньший отдых.</p>
+    <p>Главный принцип роста мышц: постепенно увеличивай нагрузку.</p>
     <div class="tip-box">🏋️ Увеличивай рабочий вес на 2.5–5 кг когда можешь сделать верхнюю границу повторений с хорошей техникой</div>
-    <h3>Кардио</h3>
-    <p>Не замена силовым, а дополнение. 2–3 кардиосессии по 30–40 минут в неделю улучшают здоровье сердца и ускоряют жиросжигание.</p>
-    <h3>Восстановление</h3>
-    <p>Мышцы растут не во время тренировки, а во время отдыха. Не тренируй одну группу мышц чаще 2 раз в неделю.</p>
     <h3>Питание вокруг тренировки</h3>
-    <ul>
-      <li>За 1.5–2 часа до: углеводы + немного белка</li>
-      <li>После тренировки: белок 20–40г + углеводы</li>
-    </ul>
+    <ul><li>За 1.5–2 часа до: углеводы + немного белка</li><li>После тренировки: белок 20–40г + углеводы</li></ul>
   </div>
 </div>
 
@@ -499,20 +399,10 @@
   <div class="page-title">СОН</div>
   <div class="topic-body">
     <h3>Сон и похудение</h3>
-    <p>При недосыпе повышается грелин (гормон голода) и снижается лептин (гормон сытости). Результат — ты ешь на 300–400 ккал больше на следующий день.</p>
+    <p>При недосыпе повышается грелин (гормон голода) и снижается лептин (гормон сытости). Результат — ты ешь на 300–400 ккал больше.</p>
     <div class="tip-box">😴 7–9 часов сна — не роскошь, а необходимость для результата в зале</div>
-    <h3>Гормон роста</h3>
-    <p>80% суточного гормона роста выделяется во сне. Именно он отвечает за восстановление мышц и жиросжигание ночью.</p>
     <h3>Рекомендации</h3>
-    <ul>
-      <li>Ложись и вставай в одно время</li>
-      <li>Убирай телефон за час до сна</li>
-      <li>Температура в комнате 18–20°C оптимальна</li>
-      <li>Не ешь за 2–3 часа до сна</li>
-      <li>Избегай кофеина после 14:00</li>
-    </ul>
-    <h3>Дневной сон</h3>
-    <p>20–30 минут дневного сна восстанавливают когнитивные функции и физическую производительность. Главное — не дольше, иначе почувствуешь вялость.</p>
+    <ul><li>Ложись и вставай в одно время</li><li>Убирай телефон за час до сна</li><li>Температура в комнате 18–20°C</li><li>Не ешь за 2–3 часа до сна</li></ul>
   </div>
 </div>
 
@@ -524,17 +414,7 @@
     <p>Дефицит калорий — это когда ты тратишь больше калорий, чем потребляешь. Только так можно сбросить жир.</p>
     <h3>Какой дефицит создавать?</h3>
     <p>Безопасный дефицит: 300–500 ккал в день. Это даст потерю ~0.3–0.5 кг жира в неделю без потери мышц.</p>
-    <div class="tip-box">⚠️ Дефицит больше 1000 ккал ведёт к потере мышц, замедлению метаболизма и срывам</div>
-    <h3>Формула TDEE</h3>
-    <p>TDEE (Total Daily Energy Expenditure) — твои суточные траты. Включает базальный метаболизм + физическая активность + термический эффект пищи.</p>
-    <h3>Почему вес стоит?</h3>
-    <ul>
-      <li>Переоценка калорий в еде</li>
-      <li>Задержка воды (особенно при стрессе)</li>
-      <li>Адаптация метаболизма через 4–6 недель</li>
-      <li>Набор мышечной массы параллельно с потерей жира</li>
-    </ul>
-    <div class="tip-box">💡 Делай рефид (1 день с нормой калорий) раз в 1–2 недели — это перезапускает метаболизм</div>
+    <div class="tip-box">⚠️ Дефицит больше 1000 ккал ведёт к потере мышц и срывам</div>
   </div>
 </div>
 
@@ -543,21 +423,12 @@
   <div class="page-title">БЕЛОК</div>
   <div class="topic-body">
     <h3>Зачем нужен белок?</h3>
-    <p>Белок — строительный материал для мышц, гормонов, ферментов и антител. Он также даёт самое долгое чувство сытости из всех макронутриентов.</p>
+    <p>Белок — строительный материал для мышц, гормонов, ферментов и антител. Даёт самое долгое чувство сытости.</p>
     <h3>Норма потребления</h3>
-    <p>При активных тренировках: 1.6–2.2 г на кг веса тела. При похудении можно до 2.5 г — это защищает мышцы от распада.</p>
-    <div class="tip-box">🥩 Распределяй белок равномерно по приёмам пищи: 20–40г за раз усваивается оптимально</div>
+    <p>При активных тренировках: 1.6–2.2 г на кг веса тела.</p>
+    <div class="tip-box">🥩 Распределяй белок равномерно: 20–40г за раз</div>
     <h3>Лучшие источники</h3>
-    <ul>
-      <li>Куриная грудка — 31г/100г</li>
-      <li>Творог 0% — 18г/100г</li>
-      <li>Яйца — 13г/100г</li>
-      <li>Тунец — 25г/100г</li>
-      <li>Греческий йогурт — 10г/100г</li>
-      <li>Чечевица — 9г/100г</li>
-    </ul>
-    <h3>Протеиновые добавки</h3>
-    <p>Сывороточный протеин — удобный способ добрать белок. Не замена еде, а дополнение. 1–2 порции в день вполне достаточно.</p>
+    <ul><li>Куриная грудка — 31г/100г</li><li>Творог 0% — 18г/100г</li><li>Яйца — 13г/100г</li><li>Тунец — 25г/100г</li></ul>
   </div>
 </div>
 
@@ -565,20 +436,16 @@
 <div class="page" id="page-ask">
   <div class="page-title">ТРЕНЕР</div>
   <div class="page-sub">Задай вопрос анонимно</div>
-
   <div class="ask-intro">
     <div class="ask-intro-icon">🏆</div>
     <div class="ask-intro-title">Личная консультация</div>
     <div class="ask-intro-text">Задай любой вопрос о питании, тренировках или здоровье. Тренер ответит тебе лично и анонимно.</div>
   </div>
-
   <div class="ask-form">
     <textarea id="ask-text" placeholder="Напиши свой вопрос здесь..."></textarea>
     <button class="btn-accent" onclick="sendQuestion()">ОТПРАВИТЬ ВОПРОС</button>
   </div>
-  <div class="success-msg" id="ask-success">
-    ✅ Вопрос отправлен! Ожидай ответа в боте.
-  </div>
+  <div class="success-msg" id="ask-success">✅ Вопрос отправлен! Ожидай ответа в боте.</div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -590,6 +457,10 @@
   <button class="nav-btn" onclick="showPage('history', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
     История
+  </button>
+  <button class="nav-btn" onclick="showPage('scan', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
+    Сканер
   </button>
   <button class="nav-btn" onclick="showPage('knowledge', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -609,13 +480,12 @@
   const API = 'https://fitness-bot-app-production.up.railway.app/api';
 
   let state = {
-    calories_today: 0,
-    calories_target: 2000,
-    water_today: 0,
-    meals_today: [],
-    proteins: 0, fats: 0, carbs: 0,
-    history: []
+    calories_today: 0, calories_target: 2000, water_today: 0,
+    meals_today: [], proteins: 0, fats: 0, carbs: 0, history: []
   };
+
+  let scannedProduct = null;
+  let scannerRunning = false;
 
   async function loadData() {
     if (!userId) return renderAll();
@@ -623,8 +493,7 @@
       const res = await fetch(`${API}/get/${userId}`);
       const data = await res.json();
       state = {
-        ...state,
-        ...data,
+        ...state, ...data,
         proteins: data.meals_today?.reduce((s, m) => s + (m.proteins || 0), 0) || 0,
         fats: data.meals_today?.reduce((s, m) => s + (m.fats || 0), 0) || 0,
         carbs: data.meals_today?.reduce((s, m) => s + (m.carbs || 0), 0) || 0,
@@ -639,8 +508,7 @@
     if (tg) tg.HapticFeedback.impactOccurred('light');
     if (userId) {
       await fetch(`${API}/water`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId, ml: 250 })
       });
     }
@@ -656,18 +524,13 @@
     renderDash();
     if (userId) {
       await fetch(`${API}/meal/delete`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId, index: i })
       });
     }
   }
 
-  function renderAll() {
-    renderDash();
-    renderHistory();
-    renderDate();
-  }
+  function renderAll() { renderDash(); renderHistory(); renderDate(); }
 
   function renderDate() {
     const d = new Date();
@@ -678,20 +541,17 @@
 
   function renderDash() {
     const { calories_today, calories_target, water_today, meals_today, proteins, fats, carbs } = state;
-
     const pct = Math.min(calories_today / calories_target, 1);
     const circ = 276.46;
     document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * pct);
     document.getElementById('ring-eaten').textContent = calories_today;
     document.getElementById('ring-target').textContent = calories_target;
-
     document.getElementById('m-p').textContent = proteins + 'г';
     document.getElementById('m-f').textContent = fats + 'г';
     document.getElementById('m-c').textContent = carbs + 'г';
     document.getElementById('bar-p').style.width = Math.min(proteins / 150 * 100, 100) + '%';
     document.getElementById('bar-f').style.width = Math.min(fats / 80 * 100, 100) + '%';
     document.getElementById('bar-c').style.width = Math.min(carbs / 250 * 100, 100) + '%';
-
     const drops = document.getElementById('water-drops');
     drops.innerHTML = '';
     for (let i = 0; i < 8; i++) {
@@ -700,7 +560,6 @@
       drops.appendChild(d);
     }
     document.getElementById('water-ml').textContent = water_today;
-
     const ml = document.getElementById('meals-list');
     if (!meals_today.length) {
       ml.innerHTML = '<div class="empty-state">Пока ничего не записано 🍽</div>';
@@ -710,8 +569,7 @@
           <span class="meal-name">${m.meal}</span>
           <span class="meal-cal">${m.calories}</span>
           <button class="meal-del" onclick="deleteMeal(${i})">×</button>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
   }
 
@@ -723,20 +581,12 @@
     }
     list.innerHTML = [...state.history].reverse().map(d => {
       const pct = Math.min(d.calories / (d.target || 2000) * 100, 100);
-      return `
-        <div class="history-day">
-          <div class="history-date">${d.date}</div>
-          <div class="history-row">
-            <span>🔥 Калории</span>
-            <span class="history-val">${d.calories} <span style="font-size:12px;color:var(--muted)">/ ${d.target || 2000}</span></span>
-          </div>
-          <div class="history-bar-wrap"><div class="history-bar" style="width:${pct}%"></div></div>
-          <div class="history-row">
-            <span>💧 Вода</span>
-            <span class="history-val">${d.water || 0} мл</span>
-          </div>
-        </div>
-      `;
+      return `<div class="history-day">
+        <div class="history-date">${d.date}</div>
+        <div class="history-row"><span>🔥 Калории</span><span class="history-val">${d.calories} <span style="font-size:12px;color:var(--muted)">/ ${d.target || 2000}</span></span></div>
+        <div class="history-bar-wrap"><div class="history-bar" style="width:${pct}%"></div></div>
+        <div class="history-row"><span>💧 Вода</span><span class="history-val">${d.water || 0} мл</span></div>
+      </div>`;
     }).join('');
   }
 
@@ -747,6 +597,7 @@
     btn.classList.add('active');
     if (id === 'history') renderHistory();
     if (id === 'dash') loadData();
+    if (id !== 'scan' && scannerRunning) stopScanner();
   }
 
   function openTopic(id) {
@@ -773,6 +624,136 @@
       document.querySelectorAll('.topic-content.open').forEach(t => t.classList.remove('open'));
       tg.BackButton.hide();
     });
+  }
+
+  // ===== SCANNER =====
+  function startScanner() {
+    document.getElementById('scannerWrap').style.display = 'block';
+    document.getElementById('btnStart').style.display = 'none';
+    document.getElementById('btnStop').style.display = 'block';
+    document.getElementById('scanStatus').textContent = '🔍 Наведи камеру на штрихкод...';
+    document.getElementById('scanStatus').className = 'scan-status';
+    document.getElementById('productCard').classList.remove('show');
+    scannerRunning = true;
+
+    Quagga.init({
+      inputStream: {
+        name: 'Live',
+        type: 'LiveStream',
+        target: document.getElementById('scanner-viewport'),
+        constraints: { facingMode: 'environment', width: { min: 640 }, height: { min: 480 } }
+      },
+      decoder: {
+        readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader']
+      }
+    }, (err) => {
+      if (err) {
+        document.getElementById('scanStatus').textContent = '❌ Нет доступа к камере';
+        document.getElementById('scanStatus').className = 'scan-status error';
+        stopScanner();
+        return;
+      }
+      Quagga.start();
+    });
+
+    let lastCode = null;
+    Quagga.onDetected(async (result) => {
+      const code = result.codeResult.code;
+      if (code === lastCode) return;
+      lastCode = code;
+      if (tg) tg.HapticFeedback.notificationOccurred('success');
+      document.getElementById('scanStatus').textContent = '✅ Штрихкод найден: ' + code;
+      document.getElementById('scanStatus').className = 'scan-status success';
+      stopScanner();
+      await lookupProduct(code);
+    });
+  }
+
+  function stopScanner() {
+    if (!scannerRunning) return;
+    scannerRunning = false;
+    Quagga.stop();
+    document.getElementById('scannerWrap').style.display = 'none';
+    document.getElementById('btnStart').style.display = 'block';
+    document.getElementById('btnStop').style.display = 'none';
+  }
+
+  async function lookupProduct(barcode) {
+    document.getElementById('scanStatus').textContent = '🔍 Ищу продукт...';
+    try {
+      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+      const data = await res.json();
+      if (data.status !== 1) {
+        document.getElementById('scanStatus').textContent = '❌ Продукт не найден в базе';
+        document.getElementById('scanStatus').className = 'scan-status error';
+        return;
+      }
+      const p = data.product;
+      const n = p.nutriments;
+      scannedProduct = {
+        name: p.product_name_ru || p.product_name || 'Неизвестный продукт',
+        calories100: Math.round(n['energy-kcal_100g'] || n['energy_100g'] / 4.184 || 0),
+        proteins100: Math.round(n.proteins_100g || 0),
+        fats100: Math.round(n.fat_100g || 0),
+        carbs100: Math.round(n.carbohydrates_100g || 0),
+      };
+      document.getElementById('productName').textContent = scannedProduct.name;
+      document.getElementById('portionInput').value = 100;
+      updatePortion();
+      document.getElementById('productCard').classList.add('show');
+      document.getElementById('scanStatus').textContent = '✅ Продукт найден!';
+    } catch(e) {
+      document.getElementById('scanStatus').textContent = '❌ Ошибка поиска продукта';
+      document.getElementById('scanStatus').className = 'scan-status error';
+    }
+  }
+
+  function updatePortion() {
+    if (!scannedProduct) return;
+    const portion = parseFloat(document.getElementById('portionInput').value) || 100;
+    const k = portion / 100;
+    document.getElementById('pCal').textContent = Math.round(scannedProduct.calories100 * k);
+    document.getElementById('pProt').textContent = Math.round(scannedProduct.proteins100 * k) + 'г';
+    document.getElementById('pFat').textContent = Math.round(scannedProduct.fats100 * k) + 'г';
+    document.getElementById('pCarb').textContent = Math.round(scannedProduct.carbs100 * k) + 'г';
+  }
+
+  function changePortion(delta) {
+    const input = document.getElementById('portionInput');
+    input.value = Math.max(1, (parseFloat(input.value) || 100) + delta);
+    updatePortion();
+  }
+
+  async function addScannedMeal() {
+    if (!scannedProduct) return;
+    const portion = parseFloat(document.getElementById('portionInput').value) || 100;
+    const k = portion / 100;
+    const meal = {
+      meal: `${scannedProduct.name} (${portion}г)`,
+      calories: Math.round(scannedProduct.calories100 * k),
+      proteins: Math.round(scannedProduct.proteins100 * k),
+      fats: Math.round(scannedProduct.fats100 * k),
+      carbs: Math.round(scannedProduct.carbs100 * k),
+    };
+
+    if (userId) {
+      await fetch(`${API}/meal`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ user_id: userId, ...meal })
+      });
+    }
+
+    state.meals_today.push(meal);
+    state.calories_today += meal.calories;
+    state.proteins += meal.proteins;
+    state.fats += meal.fats;
+    state.carbs += meal.carbs;
+
+    if (tg) tg.HapticFeedback.notificationOccurred('success');
+    document.getElementById('productCard').classList.remove('show');
+    document.getElementById('scanStatus').textContent = '✅ Добавлено в дневник!';
+    document.getElementById('scanStatus').className = 'scan-status success';
+    scannedProduct = null;
   }
 
   loadData();
