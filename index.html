@@ -6,6 +6,7 @@
 <title>FitBot</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -42,19 +43,9 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
   .nav-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 0;
-    font-size: 10px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: color .2s;
-    border: none;
-    background: none;
-    font-family: inherit;
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 0; font-size: 10px; color: var(--muted); cursor: pointer;
+    transition: color .2s; border: none; background: none; font-family: inherit;
   }
   .nav-btn.active { color: var(--accent); }
   .nav-btn svg { width: 22px; height: 22px; }
@@ -62,37 +53,16 @@
   .page { display: none; padding: 20px 16px 90px; min-height: 100vh; }
   .page.active { display: block; }
 
-  .page-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 36px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    margin-bottom: 4px;
-  }
+  .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--accent); margin-bottom: 4px; }
   .page-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
 
-  .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 12px;
-    border: 1px solid #ffffff08;
-  }
-  .card-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
+  .card { background: var(--surface); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; border: 1px solid #ffffff08; }
+  .card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px; }
 
   .ring-wrap { display: flex; align-items: center; gap: 20px; }
   .ring-svg { flex-shrink: 0; }
   .ring-track { fill: none; stroke: var(--surface2); stroke-width: 8; }
-  .ring-fill {
-    fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round;
-    transition: stroke-dashoffset .8s ease; transform: rotate(-90deg); transform-origin: 50% 50%;
-  }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset .8s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
   .ring-center { text-anchor: middle; dominant-baseline: middle; }
   .ring-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; fill: var(--text); }
   .ring-label { font-size: 10px; fill: var(--muted); }
@@ -108,20 +78,11 @@
   .macro-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
   .water-track { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-  .water-drop {
-    width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-    background: var(--surface2); border: 2px solid var(--surface2); cursor: pointer; transition: all .2s;
-  }
+  .water-drop { width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--surface2); border: 2px solid var(--surface2); cursor: pointer; transition: all .2s; }
   .water-drop.filled { background: var(--water); border-color: var(--water); }
-  .water-btn {
-    background: var(--water); color: #000; border: none; border-radius: 10px;
-    padding: 10px 16px; font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer; width: 100%;
-  }
+  .water-btn { background: var(--water); color: #000; border: none; border-radius: 10px; padding: 10px 16px; font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer; width: 100%; }
 
-  .meal-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0; border-bottom: 1px solid #ffffff08;
-  }
+  .meal-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ffffff08; }
   .meal-item:last-child { border-bottom: none; }
   .meal-name { font-size: 14px; flex: 1; padding-right: 10px; }
   .meal-cal { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); }
@@ -173,12 +134,21 @@
     overflow: hidden;
     background: #000;
     margin-bottom: 16px;
-    min-height: 250px;
+    aspect-ratio: 4/3;
   }
-  #scanner-viewport { width: 100%; }
-  #scanner-viewport video { width: 100%; display: block; }
-  #scanner-viewport canvas { display: none; }
+  #scanner-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  #scanner-canvas { display: none; }
 
+  .scanner-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
   .scanner-line {
     position: absolute;
     left: 10%; right: 10%;
@@ -186,49 +156,21 @@
     background: var(--accent);
     box-shadow: 0 0 8px var(--accent);
     animation: scanLine 2s ease-in-out infinite;
-    top: 50%;
   }
-  @keyframes scanLine {
-    0%, 100% { top: 20%; }
-    50% { top: 80%; }
-  }
+  @keyframes scanLine { 0%, 100% { top: 20%; } 50% { top: 80%; } }
 
-  .scanner-corner {
-    position: absolute;
-    width: 24px; height: 24px;
-    border-color: var(--accent);
-    border-style: solid;
-    border-width: 0;
-  }
+  .scanner-corner { position: absolute; width: 24px; height: 24px; border-color: var(--accent); border-style: solid; border-width: 0; }
   .scanner-corner.tl { top: 16px; left: 16px; border-top-width: 3px; border-left-width: 3px; }
   .scanner-corner.tr { top: 16px; right: 16px; border-top-width: 3px; border-right-width: 3px; }
   .scanner-corner.bl { bottom: 16px; left: 16px; border-bottom-width: 3px; border-left-width: 3px; }
   .scanner-corner.br { bottom: 16px; right: 16px; border-bottom-width: 3px; border-right-width: 3px; }
 
-  .scan-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 12px;
-    border: none;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    margin-bottom: 12px;
-    transition: opacity .2s;
-  }
+  .scan-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; cursor: pointer; margin-bottom: 12px; transition: opacity .2s; }
   .scan-btn:active { opacity: .8; }
   .scan-btn-start { background: var(--accent); color: #000; }
   .scan-btn-stop { background: var(--danger); color: #fff; }
 
-  .product-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 18px;
-    border: 1px solid #c8f13530;
-    margin-bottom: 12px;
-    display: none;
-  }
+  .product-card { background: var(--surface); border-radius: var(--radius); padding: 18px; border: 1px solid #c8f13530; margin-bottom: 12px; display: none; }
   .product-card.show { display: block; }
   .product-name { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
   .product-macros { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
@@ -296,21 +238,24 @@
 <!-- PAGE: SCANNER -->
 <div class="page" id="page-scan">
   <div class="page-title">СКАНЕР</div>
-  <div class="page-sub">Сканируй штрихкод продукта</div>
+  <div class="page-sub">Штрихкоды и QR-коды продуктов</div>
 
   <div class="scanner-wrap" id="scannerWrap" style="display:none">
-    <div id="scanner-viewport"></div>
-    <div class="scanner-line"></div>
-    <div class="scanner-corner tl"></div>
-    <div class="scanner-corner tr"></div>
-    <div class="scanner-corner bl"></div>
-    <div class="scanner-corner br"></div>
+    <video id="scanner-video" autoplay playsinline muted></video>
+    <canvas id="scanner-canvas"></canvas>
+    <div class="scanner-overlay">
+      <div class="scanner-line"></div>
+      <div class="scanner-corner tl"></div>
+      <div class="scanner-corner tr"></div>
+      <div class="scanner-corner bl"></div>
+      <div class="scanner-corner br"></div>
+    </div>
   </div>
 
   <button class="scan-btn scan-btn-start" id="btnStart" onclick="startScanner()">📷 НАЧАТЬ СКАНИРОВАНИЕ</button>
   <button class="scan-btn scan-btn-stop" id="btnStop" onclick="stopScanner()" style="display:none">⏹ ОСТАНОВИТЬ</button>
 
-  <div class="scan-status" id="scanStatus">Нажми кнопку и наведи камеру на штрихкод</div>
+  <div class="scan-status" id="scanStatus">Нажми кнопку и наведи камеру на штрихкод или QR-код</div>
 
   <div class="product-card" id="productCard">
     <div class="product-name" id="productName"></div>
@@ -369,14 +314,12 @@
   <div class="page-title">ВОДА</div>
   <div class="topic-body">
     <h3>Почему вода так важна?</h3>
-    <p>Тело на 60–70% состоит из воды. Даже небольшое обезвоживание (1–2%) снижает физическую и умственную производительность на 10–20%.</p>
+    <p>Тело на 60–70% состоит из воды. Даже небольшое обезвоживание (1–2%) снижает производительность на 10–20%.</p>
     <h3>Сколько пить?</h3>
     <p>Базовая норма: 30–35 мл на кг веса тела. При активных тренировках добавь ещё 500–1000 мл.</p>
     <div class="tip-box">💧 Начинай день со стакана воды сразу после пробуждения</div>
     <h3>Признаки обезвоживания</h3>
-    <ul>
-      <li>Тёмная моча</li><li>Головная боль</li><li>Усталость и раздражительность</li><li>Сухость во рту</li>
-    </ul>
+    <ul><li>Тёмная моча</li><li>Головная боль</li><li>Усталость и раздражительность</li><li>Сухость во рту</li></ul>
   </div>
 </div>
 
@@ -385,7 +328,7 @@
   <div class="page-title">ТРЕНИРОВКИ</div>
   <div class="topic-body">
     <h3>Сколько тренироваться?</h3>
-    <p>ВОЗ рекомендует минимум 150 минут умеренной активности в неделю. Для изменения состава тела — 3–5 силовых тренировок в неделю.</p>
+    <p>ВОЗ рекомендует минимум 150 минут умеренной активности в неделю. Для изменения состава тела — 3–5 силовых тренировок.</p>
     <h3>Прогрессивная перегрузка</h3>
     <p>Главный принцип роста мышц: постепенно увеличивай нагрузку.</p>
     <div class="tip-box">🏋️ Увеличивай рабочий вес на 2.5–5 кг когда можешь сделать верхнюю границу повторений с хорошей техникой</div>
@@ -486,6 +429,10 @@
 
   let scannedProduct = null;
   let scannerRunning = false;
+  let videoStream = null;
+  let scanAnimFrame = null;
+  let lastScannedCode = null;
+  let cameraPermissionGranted = false; // кэш разрешения
 
   async function loadData() {
     if (!userId) return renderAll();
@@ -510,7 +457,7 @@
       await fetch(`${API}/water`, {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId, ml: 250 })
-      });
+      }).catch(() => {});
     }
   }
 
@@ -526,7 +473,7 @@
       await fetch(`${API}/meal/delete`, {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId, index: i })
-      });
+      }).catch(() => {});
     }
   }
 
@@ -626,73 +573,139 @@
     });
   }
 
-  // ===== SCANNER =====
-  function startScanner() {
-    document.getElementById('scannerWrap').style.display = 'block';
+  // ===== SCANNER (custom — no Quagga for barcode, jsQR for QR) =====
+
+  async function startScanner() {
+    setStatus('🔍 Запускаю камеру...', '');
     document.getElementById('btnStart').style.display = 'none';
     document.getElementById('btnStop').style.display = 'block';
-    document.getElementById('scanStatus').textContent = '🔍 Наведи камеру на штрихкод...';
-    document.getElementById('scanStatus').className = 'scan-status';
     document.getElementById('productCard').classList.remove('show');
-    scannerRunning = true;
+    lastScannedCode = null;
 
-    Quagga.init({
-      inputStream: {
-        name: 'Live',
-        type: 'LiveStream',
-        target: document.getElementById('scanner-viewport'),
-        constraints: { facingMode: 'environment', width: { min: 640 }, height: { min: 480 } }
-      },
-      decoder: {
-        readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader']
+    try {
+      // Запрашиваем камеру только если ещё нет потока
+      // Используем конкретные ограничения чтобы избежать широкоугольной камеры
+      const constraints = {
+        video: {
+          facingMode: { exact: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          // Отключаем широкоугольный объектив через focusDistance если поддерживается
+          advanced: [{ zoom: 1 }]
+        }
+      };
+
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch(e) {
+        // Если exact facingMode не поддерживается — fallback
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
       }
-    }, (err) => {
-      if (err) {
-        document.getElementById('scanStatus').textContent = '❌ Нет доступа к камере';
-        document.getElementById('scanStatus').className = 'scan-status error';
-        stopScanner();
+
+      // Выбираем основную камеру (не широкоугольную) через MediaTrackSettings
+      const track = videoStream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+
+      // Если есть поддержка zoom — ставим минимальный zoom чтобы избежать ultra-wide
+      if (capabilities.zoom) {
+        await track.applyConstraints({ advanced: [{ zoom: capabilities.zoom.min || 1 }] });
+      }
+
+      cameraPermissionGranted = true;
+
+      const video = document.getElementById('scanner-video');
+      video.srcObject = videoStream;
+      await video.play();
+
+      document.getElementById('scannerWrap').style.display = 'block';
+      scannerRunning = true;
+      setStatus('📷 Наведи на штрихкод или QR-код', '');
+
+      scanFrame();
+
+    } catch(e) {
+      setStatus('❌ Нет доступа к камере. Разреши доступ в настройках.', 'error');
+      document.getElementById('btnStart').style.display = 'block';
+      document.getElementById('btnStop').style.display = 'none';
+    }
+  }
+
+  function scanFrame() {
+    if (!scannerRunning) return;
+
+    const video = document.getElementById('scanner-video');
+    const canvas = document.getElementById('scanner-canvas');
+
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      // 1. Пробуем QR через jsQR
+      const qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert'
+      });
+      if (qrCode && qrCode.data) {
+        onCodeDetected(qrCode.data);
         return;
       }
-      Quagga.start();
-    });
 
-    let lastCode = null;
-    Quagga.onDetected(async (result) => {
-      const code = result.codeResult.code;
-      if (code === lastCode) return;
-      lastCode = code;
-      if (tg) tg.HapticFeedback.notificationOccurred('success');
-      document.getElementById('scanStatus').textContent = '✅ Штрихкод найден: ' + code;
-      document.getElementById('scanStatus').className = 'scan-status success';
-      stopScanner();
-      await lookupProduct(code);
-    });
+      // 2. Пробуем штрихкод через Quagga (статичный анализ кадра)
+      Quagga.decodeSingle({
+        decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader'] },
+        locate: true,
+        src: canvas.toDataURL()
+      }, (result) => {
+        if (result && result.codeResult && result.codeResult.code) {
+          onCodeDetected(result.codeResult.code);
+        }
+      });
+    }
+
+    scanAnimFrame = requestAnimationFrame(scanFrame);
+  }
+
+  function onCodeDetected(code) {
+    if (code === lastScannedCode) return;
+    lastScannedCode = code;
+    if (tg) tg.HapticFeedback.notificationOccurred('success');
+    setStatus('✅ Найден: ' + code, 'success');
+    stopScanner();
+    lookupProduct(code);
   }
 
   function stopScanner() {
-    if (!scannerRunning) return;
     scannerRunning = false;
-    Quagga.stop();
+    if (scanAnimFrame) { cancelAnimationFrame(scanAnimFrame); scanAnimFrame = null; }
+    if (videoStream) {
+      videoStream.getTracks().forEach(t => t.stop());
+      videoStream = null;
+    }
+    const video = document.getElementById('scanner-video');
+    video.srcObject = null;
     document.getElementById('scannerWrap').style.display = 'none';
     document.getElementById('btnStart').style.display = 'block';
     document.getElementById('btnStop').style.display = 'none';
   }
 
   async function lookupProduct(barcode) {
-    document.getElementById('scanStatus').textContent = '🔍 Ищу продукт...';
+    setStatus('🔍 Ищу продукт в базе...', '');
     try {
       const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
       const data = await res.json();
-      if (data.status !== 1) {
-        document.getElementById('scanStatus').textContent = '❌ Продукт не найден в базе';
-        document.getElementById('scanStatus').className = 'scan-status error';
+      if (data.status !== 1 || !data.product) {
+        setStatus('❌ Продукт не найден. Попробуй другой штрихкод.', 'error');
         return;
       }
       const p = data.product;
-      const n = p.nutriments;
+      const n = p.nutriments || {};
       scannedProduct = {
-        name: p.product_name_ru || p.product_name || 'Неизвестный продукт',
-        calories100: Math.round(n['energy-kcal_100g'] || n['energy_100g'] / 4.184 || 0),
+        name: p.product_name_ru || p.product_name_en || p.product_name || 'Неизвестный продукт',
+        calories100: Math.round(n['energy-kcal_100g'] || (n['energy_100g'] || 0) / 4.184 || 0),
         proteins100: Math.round(n.proteins_100g || 0),
         fats100: Math.round(n.fat_100g || 0),
         carbs100: Math.round(n.carbohydrates_100g || 0),
@@ -701,10 +714,9 @@
       document.getElementById('portionInput').value = 100;
       updatePortion();
       document.getElementById('productCard').classList.add('show');
-      document.getElementById('scanStatus').textContent = '✅ Продукт найден!';
+      setStatus('✅ Продукт найден!', 'success');
     } catch(e) {
-      document.getElementById('scanStatus').textContent = '❌ Ошибка поиска продукта';
-      document.getElementById('scanStatus').className = 'scan-status error';
+      setStatus('❌ Ошибка соединения. Проверь интернет.', 'error');
     }
   }
 
@@ -735,25 +747,27 @@
       fats: Math.round(scannedProduct.fats100 * k),
       carbs: Math.round(scannedProduct.carbs100 * k),
     };
-
     if (userId) {
       await fetch(`${API}/meal`, {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId, ...meal })
-      });
+      }).catch(() => {});
     }
-
     state.meals_today.push(meal);
     state.calories_today += meal.calories;
     state.proteins += meal.proteins;
     state.fats += meal.fats;
     state.carbs += meal.carbs;
-
     if (tg) tg.HapticFeedback.notificationOccurred('success');
     document.getElementById('productCard').classList.remove('show');
-    document.getElementById('scanStatus').textContent = '✅ Добавлено в дневник!';
-    document.getElementById('scanStatus').className = 'scan-status success';
+    setStatus('✅ Добавлено в дневник!', 'success');
     scannedProduct = null;
+  }
+
+  function setStatus(text, cls) {
+    const el = document.getElementById('scanStatus');
+    el.textContent = text;
+    el.className = 'scan-status' + (cls ? ' ' + cls : '');
   }
 
   loadData();
