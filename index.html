@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FitBot</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -573,124 +572,51 @@
     });
   }
 
-  // ===== SCANNER (custom — no Quagga for barcode, jsQR for QR) =====
+  // ===== SCANNER =====
+let codeReader = null;
+let scannerRunning = false;
 
-  async function startScanner() {
-    setStatus('🔍 Запускаю камеру...', '');
-    document.getElementById('btnStart').style.display = 'none';
-    document.getElementById('btnStop').style.display = 'block';
-    document.getElementById('productCard').classList.remove('show');
-    lastScannedCode = null;
+async function startScanner() {
+  setStatus('🔍 Запускаю камеру...', '');
+  document.getElementById('btnStart').style.display = 'none';
+  document.getElementById('btnStop').style.display = 'block';
+  document.getElementById('productCard').classList.remove('show');
+  document.getElementById('scannerWrap').style.display = 'block';
+  scannerRunning = true;
 
-    try {
-      // Запрашиваем камеру только если ещё нет потока
-      // Используем конкретные ограничения чтобы избежать широкоугольной камеры
-      const constraints = {
-        video: {
-          facingMode: { exact: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          // Отключаем широкоугольный объектив через focusDistance если поддерживается
-          advanced: [{ zoom: 1 }]
-        }
-      };
+  try {
+    codeReader = new ZXing.BrowserMultiFormatReader();
+    const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
+    
+    const backCameras = devices.filter(d => 
+      d.label.toLowerCase().includes('back') || 
+      d.label.toLowerCase().includes('rear') ||
+      d.label.toLowerCase().includes('environment')
+    );
+    const deviceId = backCameras.length > 1 
+      ? backCameras[backCameras.length - 1].deviceId
+      : (backCameras[0]?.deviceId || devices[devices.length - 1]?.deviceId);
 
-      try {
-        videoStream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch(e) {
-        // Если exact facingMode не поддерживается — fallback
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-        });
-      }
+    await codeReader.decodeFromVideoDevice(deviceId, 'scanner-video', (result, err) => {
+      if (result) onCodeDetected(result.getText());
+    });
 
-      // Выбираем основную камеру (не широкоугольную) через MediaTrackSettings
-      const track = videoStream.getVideoTracks()[0];
-      const capabilities = track.getCapabilities ? track.getCapabilities() : {};
-
-      // Если есть поддержка zoom — ставим минимальный zoom чтобы избежать ultra-wide
-      if (capabilities.zoom) {
-        await track.applyConstraints({ advanced: [{ zoom: capabilities.zoom.min || 1 }] });
-      }
-
-      cameraPermissionGranted = true;
-
-      const video = document.getElementById('scanner-video');
-      video.srcObject = videoStream;
-      await video.play();
-
-      document.getElementById('scannerWrap').style.display = 'block';
-      scannerRunning = true;
-      setStatus('📷 Наведи на штрихкод или QR-код', '');
-
-      scanFrame();
-
-    } catch(e) {
-      setStatus('❌ Нет доступа к камере. Разреши доступ в настройках.', 'error');
-      document.getElementById('btnStart').style.display = 'block';
-      document.getElementById('btnStop').style.display = 'none';
-    }
-  }
-
-  function scanFrame() {
-    if (!scannerRunning) return;
-
-    const video = document.getElementById('scanner-video');
-    const canvas = document.getElementById('scanner-canvas');
-
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-      // 1. Пробуем QR через jsQR
-      const qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
-        inversionAttempts: 'dontInvert'
-      });
-      if (qrCode && qrCode.data) {
-        onCodeDetected(qrCode.data);
-        return;
-      }
-
-      // 2. Пробуем штрихкод через Quagga (статичный анализ кадра)
-      Quagga.decodeSingle({
-        decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader'] },
-        locate: true,
-        src: canvas.toDataURL()
-      }, (result) => {
-        if (result && result.codeResult && result.codeResult.code) {
-          onCodeDetected(result.codeResult.code);
-        }
-      });
-    }
-
-    scanAnimFrame = requestAnimationFrame(scanFrame);
-  }
-
-  function onCodeDetected(code) {
-    if (code === lastScannedCode) return;
-    lastScannedCode = code;
-    if (tg) tg.HapticFeedback.notificationOccurred('success');
-    setStatus('✅ Найден: ' + code, 'success');
+    setStatus('📷 Наведи на штрихкод', '');
+  } catch(e) {
+    setStatus('❌ Нет доступа к камере', 'error');
     stopScanner();
-    lookupProduct(code);
   }
+}
 
-  function stopScanner() {
-    scannerRunning = false;
-    if (scanAnimFrame) { cancelAnimationFrame(scanAnimFrame); scanAnimFrame = null; }
-    if (videoStream) {
-      videoStream.getTracks().forEach(t => t.stop());
-      videoStream = null;
-    }
-    const video = document.getElementById('scanner-video');
-    video.srcObject = null;
-    document.getElementById('scannerWrap').style.display = 'none';
-    document.getElementById('btnStart').style.display = 'block';
-    document.getElementById('btnStop').style.display = 'none';
-  }
+function stopScanner() {
+  scannerRunning = false;
+  if (codeReader) { codeReader.reset(); codeReader = null; }
+  document.getElementById('scannerWrap').style.display = 'none';
+  document.getElementById('btnStart').style.display = 'block';
+  document.getElementById('btnStop').style.display = 'none';
+}
+
+function scanFrame() {}
 
   async function lookupProduct(barcode) {
     setStatus('🔍 Ищу продукт в базе...', '');
